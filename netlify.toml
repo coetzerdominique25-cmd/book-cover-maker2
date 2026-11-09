@@ -4,3 +4,8 @@
 
 [functions]
   node_bundler = "esbuild"
+
+[[headers]]
+  for = "/jspdf.umd.min.js"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
