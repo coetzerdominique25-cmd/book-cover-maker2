@@ -14,11 +14,11 @@ export default async (req) => {
     const lic = t && await store().get("lic:" + t.e, { type: "json" });
     if (!lic || lic.exp < Date.now()) return json({ error: "Your pass has expired. Buy a new pass instead." }, 403);
     extra = Math.round(Number(body.extra));
-    if (lic.kids >= MAX_KIDS) return json({ error: `Your pass already has the maximum of ${MAX_KIDS} children.` }, 400);
-    if (!(extra >= 1 && lic.kids + extra <= MAX_KIDS)) return json({ error: `You can add up to ${MAX_KIDS - lic.kids} more ${MAX_KIDS - lic.kids === 1 ? "child" : "children"} (maximum ${MAX_KIDS} per account).` }, 400);
+    if (lic.kids >= MAX_KIDS) return json({ error: `Your pass already has the maximum of ${MAX_KIDS} sets.` }, 400);
+    if (!(extra >= 1 && lic.kids + extra <= MAX_KIDS)) return json({ error: `You can add up to ${MAX_KIDS - lic.kids} more ${MAX_KIDS - lic.kids === 1 ? "set" : "sets"} (maximum ${MAX_KIDS} per account).` }, 400);
     type = "topup"; email = lic.email; kids = extra; amountNum = 25 * extra;
   } else {
-    if (!(kids >= MIN_KIDS && kids <= MAX_KIDS)) return json({ error: `Choose between ${MIN_KIDS} and ${MAX_KIDS} children.` }, 400);
+    if (!(kids >= MIN_KIDS && kids <= MAX_KIDS)) return json({ error: `Choose between ${MIN_KIDS} and ${MAX_KIDS} sets.` }, 400);
     if (!validEmail(email)) return json({ error: "Please enter a valid email address." }, 400);
     amountNum = price(kids);
   }
@@ -38,7 +38,7 @@ export default async (req) => {
     ["email_address", email],
     ["m_payment_id", id],
     ["amount", amount],
-    ["item_name", type === "topup" ? `Book Cover Maker - ${extra} extra ${extra === 1 ? "child" : "children"}` : `Book Cover Maker - ${kids} ${kids === 1 ? "child" : "children"}, 4 months`],
+    ["item_name", type === "topup" ? `School Book Covers - ${extra} extra ${extra === 1 ? "set" : "sets"}` : `School Book Covers - ${kids} ${kids === 1 ? "set" : "sets"}, 4 months`],
   ];
   const signature = checkoutSignature(pairs, c.pass);
   return json({ action: `${HOST}/eng/process`, fields: [...pairs, ["signature", signature]], order: id });
