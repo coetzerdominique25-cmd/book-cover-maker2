@@ -14,7 +14,8 @@ export default async (req) => {
     const lic = t && await store().get("lic:" + t.e, { type: "json" });
     if (!lic || lic.exp < Date.now()) return json({ error: "Your pass has expired. Buy a new pass instead." }, 403);
     extra = Math.round(Number(body.extra));
-    if (!(extra >= 1 && extra <= 6) || lic.kids + extra > 14) return json({ error: "Choose between 1 and 6 extra children." }, 400);
+    if (lic.kids >= MAX_KIDS) return json({ error: `Your pass already has the maximum of ${MAX_KIDS} children.` }, 400);
+    if (!(extra >= 1 && lic.kids + extra <= MAX_KIDS)) return json({ error: `You can add up to ${MAX_KIDS - lic.kids} more ${MAX_KIDS - lic.kids === 1 ? "child" : "children"} (maximum ${MAX_KIDS} per account).` }, 400);
     type = "topup"; email = lic.email; kids = extra; amountNum = 25 * extra;
   } else {
     if (!(kids >= MIN_KIDS && kids <= MAX_KIDS)) return json({ error: `Choose between ${MIN_KIDS} and ${MAX_KIDS} children.` }, 400);

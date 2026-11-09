@@ -1,4 +1,4 @@
-import { HOST, creds, itnParamString, itnSignature, addMonths, MONTHS, emailKey } from "./lib/payfast.mjs";
+import { HOST, creds, itnParamString, itnSignature, addMonths, MONTHS, MAX_KIDS, emailKey } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
 
 // Payfast calls this server-to-server after a payment. Always answer 200 so Payfast stops retrying.
@@ -24,7 +24,7 @@ export async function handleItn(rawBody, { validate = defaultValidate } = {}) {
   const topup = order.type === "topup" && active;
   const lic = {
     email: order.email,
-    kids: topup ? prev.kids + order.extra : (active ? Math.max(prev.kids, order.kids) : order.kids),
+    kids: Math.min(MAX_KIDS, topup ? prev.kids + order.extra : (active ? Math.max(prev.kids, order.kids) : order.kids)),
     exp: topup ? prev.exp : addMonths(now, MONTHS).getTime(),
     names: active ? prev.names || [] : [],
     orders: [...(prev?.orders || []), order.id],
