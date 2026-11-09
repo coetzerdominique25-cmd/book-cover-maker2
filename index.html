@@ -36,7 +36,7 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,5vw,46px);lin
 .fields .full{grid-column:1/-1}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
 input,select,button{font:inherit;color:var(--ink)}
-input[type=text],input[type=number],select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 9px;width:100%;min-width:0;font-size:15px}
+input[type=text],input[type=email],input[type=number],select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 9px;width:100%;min-width:0;font-size:15px}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .covers{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .row{display:grid;grid-template-columns:22px minmax(0,1fr) 70px 34px;gap:6px 8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
@@ -56,6 +56,7 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .dl{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
 .status{font-size:13px;color:var(--muted);min-height:1.2em}
 .status.err{color:var(--warn)}
+[hidden]{display:none!important}
 html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
 canvas{max-width:100%}
 .nojs{margin:16px;padding:14px 16px;border-radius:10px;background:#FFF4E5;color:#7A3E00;font:15px/1.45 system-ui,sans-serif;border:1px solid #F3C98B}
@@ -68,6 +69,29 @@ canvas{max-width:100%}
 .after{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.after a.btn{text-decoration:none;color:var(--ink)}
 .warn{color:var(--warn);border-top:1px solid var(--line);padding-top:8px}
 .btn.big{font-size:17px;padding:13px 22px}
+.btn.full{width:100%}
+.passinfo{flex-basis:100%;font-size:13px;color:var(--muted)}
+.passinfo b{color:var(--ink)}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(10,12,16,.55);display:flex;align-items:flex-end;justify-content:center;padding:max(12px,env(safe-area-inset-top,0px)) 12px max(12px,env(safe-area-inset-bottom,0px))}
+@media (min-width:640px){.modal{align-items:center}}
+.sheet{position:relative;background:var(--panel);color:var(--ink);border-radius:16px;padding:22px 20px 18px;width:100%;max-width:420px;max-height:100%;overflow:auto;display:flex;flex-direction:column;gap:12px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.sheet h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0;letter-spacing:.3px}
+.sheet .lead{margin:0;color:var(--muted)}
+.sheet .x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:28px;line-height:1;color:var(--muted);cursor:pointer;width:40px;height:40px}
+.sheet #pwBuy,.sheet #pwRestore,.sheet #pwWait{display:flex;flex-direction:column;gap:12px}
+.sheet #pwBuy[hidden],.sheet #pwRestore[hidden],.sheet #pwWait[hidden]{display:none}
+.kids{display:flex;align-items:center;justify-content:space-between;font-weight:600}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font-size:22px;cursor:pointer;color:var(--ink)}
+.stepper output{min-width:34px;text-align:center;font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.price{display:flex;align-items:baseline;gap:10px}
+.price span{font-family:var(--display);font-size:44px;line-height:1}
+.price small{color:var(--muted)}
+.fine{margin:0;font-size:12px;color:var(--muted)}
+.center{text-align:center;align-self:center}
+.pwmsg{font-size:13px;color:var(--warn);min-height:1em}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:sp 1s linear infinite;align-self:center}
+@keyframes sp{to{transform:rotate(360deg)}}
 .ioshint{color:var(--muted);font-weight:400}
 .btn.wa{background:#1F8F4E;border-color:#1F8F4E;color:#fff;text-decoration:none;font-size:14px}
 .steps{list-style:none;counter-reset:st;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:0;margin:0 0 18px}
@@ -113,9 +137,9 @@ canvas{max-width:100%}
     </div>
   </header>
   <ol class="steps">
-    <li><b>Type your child's name and grade</b></li>
-    <li><b>Pick the subjects</b> (and a look you like)</li>
-    <li><b>Tap Download PDF</b> and print on A4 <span class="ioshint">(iPhone: choose “Save to Files”)</span></li>
+    <li><span><b>Type your child's name and grade</b></span></li>
+    <li><span><b>Pick the subjects</b> (and a look you like)</span></li>
+    <li><span><b>Unlock and download</b> the PDF, then print on A4 <span class="ioshint">(from R50 for 4 months)</span></span></li>
   </ol>
 
   <div class="layout">
@@ -150,11 +174,12 @@ canvas{max-width:100%}
 
     <div style="min-width:0">
       <div class="dl">
-        <button class="btn primary big" id="pdf" type="button" disabled>Preparing PDF…</button>
+        <button class="btn primary big" id="pdf" type="button">Unlock to download · from R50</button>
         <div class="status" id="status" aria-live="polite"></div>
+        <div class="passinfo" id="passinfo" hidden></div>
         <a class="btn wa" id="wa" href="#" target="_blank" rel="noopener">Share with other parents on WhatsApp</a>
         <button class="linkbtn" id="asimg" type="button" hidden>Didn't download? Show the covers as pictures</button>
-        <div class="warn" id="framewarn" hidden>This file is open inside a preview, which can block downloads. Save the file and open it in Chrome, Edge or Safari.</div>
+        <div class="warn" id="framewarn" hidden></div>
       </div>
       <div class="grid" id="preview"></div>
     </div>
@@ -162,6 +187,33 @@ canvas{max-width:100%}
 </div>
 
 <div id="printArea" aria-hidden="true"></div>
+<div class="modal" id="paywall" hidden role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+  <div class="sheet">
+    <button class="x" id="pwClose" type="button" aria-label="Close">×</button>
+    <div id="pwBuy">
+      <h2 id="pwTitle">Unlock your covers</h2>
+      <p class="lead">Unlimited covers and reprints for <b>4 months</b>. No subscription, pay once.</p>
+      <div class="kids"><span>Children</span>
+        <div class="stepper"><button type="button" id="kMinus" aria-label="Fewer children">−</button><output id="kOut">2</output><button type="button" id="kPlus" aria-label="More children">+</button></div>
+      </div>
+      <div class="price"><span id="pAmt">R50</span><small id="pNote">2 children</small></div>
+      <p class="fine">R50 covers 2 children. Each extra child is R25.</p>
+      <label class="f">Your email (to restore access on another device)<input type="email" id="pEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+      <button class="btn primary big full" id="payBtn" type="button">Pay R50</button>
+      <p class="fine center">Card or Instant EFT, processed securely by Payfast.<span id="testBadge" hidden> <b>TEST MODE</b></span></p>
+      <button class="linkbtn center" id="toRestore" type="button">Already paid? Restore your access</button>
+    </div>
+    <div id="pwRestore" hidden>
+      <h2>Restore access</h2>
+      <p class="lead">Enter the email you paid with.</p>
+      <label class="f">Email<input type="email" id="rEmail" autocomplete="email" inputmode="email"></label>
+      <button class="btn primary big full" id="restoreBtn" type="button">Restore</button>
+      <button class="linkbtn center" id="toBuy" type="button">Back</button>
+    </div>
+    <div id="pwWait" hidden><h2>Confirming your payment…</h2><p class="lead">This takes a few seconds. Keep this page open.</p><div class="spin" aria-hidden="true"></div></div>
+    <div class="pwmsg" id="pwMsg" aria-live="polite"></div>
+  </div>
+</div>
 <div class="gallery" id="gallery" hidden><header><p><b>Press and hold each cover</b> and choose <b>Save</b>. Print from your photos on A4.</p><button class="btn primary" id="closegal" type="button">Done</button></header><div class="imgs" id="galimgs"></div></div>
 <script>
 /** @license
@@ -630,6 +682,9 @@ let state;
 try{state=JSON.parse(localStorage.getItem("bcm-state-v2")||"null")}catch(e){state=null}
 if(!state||!Array.isArray(state.covers))state=JSON.parse(JSON.stringify(DEFAULT));
 if(!state.theme||!["street","level","hype","sticker","retro","card","ticket","player"].includes(state.theme))state.theme="street";
+let LIC=null;try{LIC=JSON.parse(localStorage.getItem("bcm-pass")||"null")}catch(e){}
+function isUnlocked(){return !!(LIC&&LIC.token&&LIC.exp>Date.now())}
+function savePass(p){LIC=p;try{localStorage.setItem("bcm-pass",JSON.stringify(p))}catch(e){}}
 function save(){try{localStorage.setItem("bcm-state-v2",JSON.stringify(state))}catch(e){}}
 
 function spec(c){
@@ -1023,6 +1078,8 @@ const THEMES={
   player:{name:"Now Playing",desc:"Music player screen",draw:themePlayer}
 };
 
+function sampleMark(ctx){ctx.save();ctx.translate(105,148.5);ctx.rotate(-32*Math.PI/180);ctx.textAlign="center";ctx.textBaseline="middle";
+  font(ctx,ANTON,34);spacing(ctx,4);ctx.fillStyle="rgba(17,17,17,0.16)";for(let k=-3;k<=3;k++)ctx.fillText("SAMPLE",(k%2)*40,k*62);ctx.restore();ctx.textBaseline="alphabetic"}
 function drawCover(cv,c,idx,W,themeKey){
   const H=Math.round(W*297/210);cv.width=W;cv.height=H;
   const ctx=cv.getContext("2d");const s=W/210;ctx.setTransform(s,0,0,s,0,0);
@@ -1035,6 +1092,7 @@ function drawCover(cv,c,idx,W,themeKey){
   ctx.fillStyle="#fff";ctx.fillRect(0,0,210,297);ctx.textBaseline="alphabetic";
   d.lines=titleLines(ctx,sp);
   (THEMES[themeKey||state.theme]||THEMES.street).draw(ctx,d);
+  if(!isUnlocked())sampleMark(ctx);
 }
 
 function renderThemes(){
@@ -1061,17 +1119,33 @@ function renderPreview(){
   
 }
 
-// ---------- PDF (built in the background so one tap saves it) ----------
+// ---------- Paywall + PDF ----------
+const API="/api";
 const status=(t,err)=>{const s=$("status");s.textContent=t;s.className="status"+(err?" err":"")};
+const pwMsg=(t)=>{$("pwMsg").textContent=t||""};
 const inFrame=(()=>{try{return window.self!==window.top}catch(e){return true}})();
 const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+const normName=n=>String(n||"").trim().replace(/\s+/g," ").toUpperCase().slice(0,60);
+const fmtDate=t=>new Date(t).toLocaleDateString("en-ZA",{day:"numeric",month:"long",year:"numeric"});
 function fileName(){return ((state.name||"").trim()||"Book").replace(/[^\w\- ]+/g,"").trim()+" book covers.pdf"}
-let pdfReady=null,gen=0,buildTimer=null,lastUrl=null;
-function setBtn(){const b=$("pdf");const n=pages().length;
-  if(!n){b.disabled=true;b.textContent="Add a subject first";return}
-  if(pdfReady){b.disabled=false;b.textContent=(isIOS?"Save PDF":"Download PDF")+` · ${n} cover${n>1?"s":""}`}else{b.disabled=true;b.textContent="Preparing PDF…"}}
+let pdfReady=null,gen=0,buildTimer=null,lastUrl=null,mode="locked";
+function nameOnPass(){return isUnlocked()&&(LIC.names||[]).includes(normName(state.name))}
+function showPassInfo(){const el=$("passinfo");if(!isUnlocked()){el.hidden=true;return}
+  const names=(LIC.names||[]);el.hidden=false;
+  el.innerHTML=`Unlocked for <b>${LIC.kids} children</b> until <b>${fmtDate(LIC.exp)}</b>`+(names.length?` · ${names.map(esc).join(", ")}`:"");}
+function setBtn(){const b=$("pdf");const n=pages().length;showPassInfo();
+  if(!isUnlocked()){mode="locked";b.disabled=false;b.textContent="Unlock to download · from R50";return}
+  if(!n){mode="none";b.disabled=true;b.textContent="Add a subject first";return}
+  const nm=normName(state.name);
+  if(!nm){mode="none";b.disabled=true;b.textContent="Type your child's name";return}
+  if(!nameOnPass()){const left=LIC.kids-(LIC.names||[]).length;
+    if(left>0){mode="claim";b.disabled=false;b.textContent=`Add “${nm}” to my pass (${left} left)`}
+    else{mode="full";b.disabled=true;b.textContent=`Your pass covers ${LIC.kids} children`}
+    return}
+  if(pdfReady){mode="ready";b.disabled=false;b.textContent=(isIOS?"Save PDF":"Download PDF")+` · ${n} cover${n>1?"s":""}`}
+  else{mode="building";b.disabled=true;b.textContent="Preparing PDF…"}}
 async function build(){
-  const my=++gen;pdfReady=null;setBtn();const list=pages();if(!list.length)return;
+  const my=++gen;pdfReady=null;setBtn();if(!isUnlocked()||!nameOnPass())return;const list=pages();if(!list.length)return;
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});const cv=document.createElement("canvas");
   for(let i=0;i<list.length;i++){await new Promise(r=>setTimeout(r,0));if(my!==gen)return;
     drawCover(cv,list[i],i,1654);if(i)doc.addPage("a4","p");doc.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,297,undefined,"FAST")}
@@ -1079,33 +1153,91 @@ async function build(){
   const old=lastUrl;lastUrl=URL.createObjectURL(blob);if(old)setTimeout(()=>URL.revokeObjectURL(old),60000);
   pdfReady={blob,name:fileName(),url:lastUrl};setBtn();
 }
-function scheduleBuild(){clearTimeout(buildTimer);gen++;pdfReady=null;setBtn();buildTimer=setTimeout(()=>build().catch(()=>{status("Couldn't build the PDF here.",true);$("asimg").hidden=false}),900)}
+function scheduleBuild(){clearTimeout(buildTimer);gen++;pdfReady=null;setBtn();if(!isUnlocked())return;buildTimer=setTimeout(()=>build().catch(()=>{status("Couldn't build the PDF here.",true);$("asimg").hidden=false}),900)}
 function anchorDownload(){const a=document.createElement("a");a.href=pdfReady.url;a.download=pdfReady.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
+async function api(path,opts){const r=await fetch(API+path,opts);let j={};try{j=await r.json()}catch(e){}return {ok:r.ok,status:r.status,body:j}}
+function applyPass(b){savePass({token:b.token,kids:b.kids,exp:b.exp,names:b.names||[]});renderPreview();renderThemes();scheduleBuild()}
+async function claim(){const nm=normName(state.name);$("pdf").disabled=true;
+  try{const r=await api("/license",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token:LIC.token,name:nm})});
+    if(r.ok&&r.body.token){applyPass(r.body);status(`${nm} is on your pass.`)}
+    else if(r.status===409){savePass({...LIC,names:r.body.names||LIC.names});setBtn();status(`This pass already covers ${LIC.kids} children. Buy a new pass for more.`,true)}
+    else if(r.status===403||r.status===401){savePass(null);setBtn();status("Your pass has expired. Unlock again to keep downloading.",true)}
+    else status("Couldn't reach the server. Check your connection and try again.",true)}
+  catch(e){status("Couldn't reach the server. Check your connection and try again.",true)}
+  finally{setBtn()}}
 $("pdf").onclick=()=>{
-  if(!pdfReady)return;$("asimg").hidden=false;
-  if(isIOS){
-    const f=new File([pdfReady.blob],pdfReady.name,{type:"application/pdf"});
+  if(mode==="locked"){openPay();return}
+  if(mode==="claim"){claim();return}
+  if(mode!=="ready"||!pdfReady)return;$("asimg").hidden=false;
+  if(isIOS){const f=new File([pdfReady.blob],pdfReady.name,{type:"application/pdf"});
     if(navigator.canShare&&navigator.canShare({files:[f]})){
-      navigator.share({files:[f]}).then(()=>status("Done. Find it in the Files app.")).catch(e=>{if(e&&e.name==="AbortError")status("Not saved. Tap Download PDF to try again.");else{status("Use the pictures link below instead.",true)}});
+      navigator.share({files:[f]}).then(()=>status("Done. Find it in the Files app.")).catch(e=>{if(e&&e.name==="AbortError")status("Not saved. Tap Save PDF to try again.");else status("Use the pictures link below instead.",true)});
       status("Tap “Save to Files”, then “Save”.");return}
-    status("This browser can't save files. Open the link in Safari, or use the pictures link below.",true);return;
-  }
-  if(window.navigator.msSaveOrOpenBlob){window.navigator.msSaveOrOpenBlob(pdfReady.blob,pdfReady.name);return}
-  anchorDownload();
-  status("Saved to your Downloads folder as “"+pdfReady.name+"”.");
+    status("This browser can't save files. Open the link in Safari, or use the pictures link below.",true);return}
+  anchorDownload();status("Saved to your Downloads folder as “"+pdfReady.name+"”.");
 };
+// paywall modal
+let kids=2;const price=k=>50+25*(k-2);
+function paintPrice(){$("kOut").textContent=kids;$("pAmt").textContent="R"+price(kids);$("pNote").textContent=kids+" children";$("payBtn").textContent="Pay R"+price(kids);$("kMinus").disabled=kids<=2;$("kPlus").disabled=kids>=8}
+function showPane(id){["pwBuy","pwRestore","pwWait"].forEach(x=>$(x).hidden=x!==id);pwMsg("")}
+function openPay(){showPane("pwBuy");paintPrice();try{$("pEmail").value=localStorage.getItem("bcm-email")||""}catch(e){}$("paywall").hidden=false}
+function closePay(){$("paywall").hidden=true}
+$("pwClose").onclick=closePay;$("paywall").addEventListener("click",e=>{if(e.target.id==="paywall")closePay()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("paywall").hidden)closePay()});
+$("kMinus").onclick=()=>{if(kids>2){kids--;paintPrice()}};$("kPlus").onclick=()=>{if(kids<8){kids++;paintPrice()}};
+$("toRestore").onclick=()=>{showPane("pwRestore");$("rEmail").value=$("pEmail").value};$("toBuy").onclick=()=>showPane("pwBuy");
+const okEmail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+$("payBtn").onclick=async()=>{
+  const email=$("pEmail").value.trim();if(!okEmail(email)){pwMsg("Please enter a valid email address.");$("pEmail").focus();return}
+  try{localStorage.setItem("bcm-email",email)}catch(e){}
+  const b=$("payBtn");b.disabled=true;b.textContent="Opening Payfast…";pwMsg("");
+  try{const r=await api("/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({kids,email})});
+    if(!r.ok||!r.body.action){pwMsg(r.body.error||"Payments aren't available right now. Please try again later.");return}
+    try{localStorage.setItem("bcm-order",r.body.order)}catch(e){}
+    const f=document.createElement("form");f.method="POST";f.action=r.body.action;f.style.display="none";
+    r.body.fields.forEach(([k,v])=>{const i=document.createElement("input");i.type="hidden";i.name=k;i.value=v;f.appendChild(i)});
+    document.body.appendChild(f);f.submit();return}
+  catch(e){pwMsg("Couldn't connect. Check your internet and try again.")}
+  finally{setTimeout(()=>{b.disabled=false;paintPrice()},4000)}
+};
+$("restoreBtn").onclick=async()=>{
+  const email=$("rEmail").value.trim();if(!okEmail(email)){pwMsg("Please enter a valid email address.");return}
+  const b=$("restoreBtn");b.disabled=true;
+  try{const r=await api("/license?email="+encodeURIComponent(email));
+    if(r.ok&&r.body.token){applyPass(r.body);closePay();status("Welcome back. Your pass is active.")}
+    else pwMsg("No active pass found for that email. Check the spelling, or unlock below.")}
+  catch(e){pwMsg("Couldn't connect. Check your internet and try again.")}
+  finally{b.disabled=false}
+};
+async function confirmReturn(order){
+  $("paywall").hidden=false;showPane("pwWait");
+  const until=Date.now()+120000;
+  while(Date.now()<until){
+    try{const r=await api("/license?order="+encodeURIComponent(order));
+      if(r.ok&&r.body.token){applyPass(r.body);closePay();status("Payment received. You're unlocked!");return}
+      if(["cancelled","failed"].includes(r.body.status)){showPane("pwBuy");paintPrice();pwMsg("That payment didn't go through. You weren't charged.");return}}
+    catch(e){}
+    await new Promise(r=>setTimeout(r,2500))}
+  showPane("pwRestore");pwMsg("Your payment is still being confirmed. Try Restore in a minute with the email you paid with.");
+}
+(function handleReturn(){const q=new URLSearchParams(location.search);const paid=q.get("paid");
+  if(paid||q.has("cancelled"))history.replaceState(null,"",location.pathname);
+  if(paid)confirmReturn(paid);else if(q.has("cancelled"))status("Payment cancelled. You weren't charged.");
+  if(isUnlocked())setTimeout(async()=>{try{const r=await api("/license",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token:LIC.token,name:(LIC.names||[])[0]||state.name||"-"})});
+    if(r.status===403||r.status===401){savePass(null);renderPreview();renderThemes();setBtn()}}catch(e){}},0);
+})();
 $("asimg").onclick=async()=>{
+  if(!isUnlocked()||!nameOnPass()){openPay();return}
   const btn=$("asimg");btn.disabled=true;const box=$("galimgs");box.innerHTML="";const list=pages();const cv=document.createElement("canvas");
   for(let i=0;i<list.length;i++){await new Promise(r=>setTimeout(r,0));drawCover(cv,list[i],i,1654);const el=new Image();el.src=cv.toDataURL("image/jpeg",0.92);el.alt=spec(list[i]).full+" cover";box.appendChild(el)}
   $("gallery").hidden=false;$("gallery").scrollTop=0;btn.disabled=false;
 };
 $("closegal").onclick=()=>{$("gallery").hidden=true};
 const iosInApp=isIOS&&!/Safari\//.test(navigator.userAgent)&&!/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
-if(inFrame||iosInApp){$("framewarn").hidden=false;$("framewarn").textContent="This is open inside an app preview, which can't save files. Open the cover maker in Safari or Chrome to download the PDF, or use the pictures link below.";$("asimg").hidden=false}
+if(inFrame||iosInApp){$("framewarn").hidden=false;$("framewarn").textContent="This is open inside an app preview, which can't save files. Open the link in Safari or Chrome."}
 $("nojs").hidden=true;
-const SITE="https://coetzerdominique25-cmd.github.io/book-cover-maker2/";
-const shareUrl=/^https?:/.test(location.href)?location.href.split("#")[0]:SITE;
-$("wa").href="https://wa.me/?text="+encodeURIComponent("Make your child's school book covers here, then tap Download PDF and print on A4: "+shareUrl);
+const shareUrl=/^https?:/.test(location.href)?location.origin+location.pathname:"";
+$("wa").href="https://wa.me/?text="+encodeURIComponent("Make your child's school book covers here, then download and print on A4: "+shareUrl);
 window.__bcm=drawCover;
 renderRows();
 const ready=document.fonts?Promise.all(["400 20px Anton","700 20px 'JetBrains Mono'","700 20px 'Space Grotesk'","italic 600 20px Barlow"].map(f=>document.fonts.load(f))).catch(()=>{}):Promise.resolve();
