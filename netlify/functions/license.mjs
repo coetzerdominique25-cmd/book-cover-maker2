@@ -1,7 +1,6 @@
-import { makeToken, readToken, emailKey, normName, json, validEmail } from "./lib/payfast.mjs";
+import { readToken, emailKey, normName, json, validEmail } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
-
-const view = (lic, u) => ({ status: lic.exp > Date.now() ? "active" : "expired", token: makeToken(lic), kids: lic.kids, exp: lic.exp, names: lic.names || [], email: lic.email, hasPassword: !!(u && u.hash) });
+import { view, claim, summary } from "./lib/packs.mjs";
 const userOf = (s, lic) => s.get("user:" + emailKey(lic.email), { type: "json" });
 
 export default async (req) => {
@@ -31,14 +30,12 @@ export default async (req) => {
     if (!t) return json({ status: "invalid" }, 401);
     const key = "lic:" + t.e;
     const lic = await s.get(key, { type: "json" });
-    if (!lic || lic.exp < Date.now()) return json({ status: "expired" }, 403);
+    if (!lic || !summary(lic).active) return json({ status: "expired" }, 403);
     const name = normName(body.name);
     if (!name) return json({ error: "Missing name" }, 400);
-    const names = lic.names || [];
-    if (!names.includes(name)) {
-      if (names.length >= lic.kids) return json({ status: "full", kids: lic.kids, names }, 409);
-      names.push(name); lic.names = names; await s.setJSON(key, lic);
-    }
+    const r = claim(lic, name);
+    if (r === "full") { const v = view(lic, await userOf(s, lic)); return json({ ...v, status: "full" }, 409); }
+    if (r === "added") await s.setJSON(key, lic);
     return json(view(lic, await userOf(s, lic)));
   }
   return json({ error: "Method not allowed" }, 405);

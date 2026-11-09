@@ -1,5 +1,6 @@
 import { HOST, creds, itnParamString, itnSignature, addMonths, MONTHS, MAX_KIDS, emailKey } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
+import { packsOf } from "./lib/packs.mjs";
 
 // Payfast calls this server-to-server after a payment. Always answer 200 so Payfast stops retrying.
 export async function handleItn(rawBody, { validate = defaultValidate } = {}) {
@@ -18,17 +19,19 @@ export async function handleItn(rawBody, { validate = defaultValidate } = {}) {
   if (order.status === "paid") return { ok: true, repeat: true };
 
   const key = "lic:" + emailKey(order.email);
-  const prev = await s.get(key, { type: "json" });
+  const lic = (await s.get(key, { type: "json" })) || { email: order.email, packs: [], orders: [] };
+  packsOf(lic); // normalises older records
   const now = new Date();
-  const active = prev && prev.exp > now.getTime();
-  const topup = order.type === "topup" && active;
-  const lic = {
-    email: order.email,
-    kids: Math.min(MAX_KIDS, topup ? prev.kids + order.extra : (active ? Math.max(prev.kids, order.kids) : order.kids)),
-    exp: topup ? prev.exp : addMonths(now, MONTHS).getTime(),
-    names: active ? prev.names || [] : [],
-    orders: [...(prev?.orders || []), order.id],
-  };
+  const target = order.type === "topup" ? lic.packs.find(p => p.id === order.packId && p.exp > now.getTime()) : null;
+  if (target) {
+    target.kids = Math.min(MAX_KIDS, target.kids + order.extra); // same expiry as that pack
+  } else {
+    // a new pack: its own 4 months from today
+    lic.packs.push({ id: order.id, kids: Math.min(MAX_KIDS, order.type === "topup" ? order.extra : order.kids), exp: addMonths(now, MONTHS).getTime(), start: now.getTime(), names: [] });
+  }
+  lic.email = order.email;
+  lic.orders = [...(lic.orders || []), order.id];
+  delete lic.kids; delete lic.exp; delete lic.names;
   await s.setJSON(key, lic);
   await s.setJSON("order:" + order.id, { ...order, status: "paid", pf_payment_id: data.pf_payment_id, paid: now.toISOString() });
   return { ok: true };

@@ -6,9 +6,10 @@
 - Audience: parents, learners and teachers in South Africa (primary and high school)
 - What it does: type a name and grade, choose subjects (25 South African school subjects built in, or any custom subject) and one of 12 themes (Street Label, Level Up, Hype Drop, Sticker Bomb, Retro Wave, Trading Card, Boarding Pass, Now Playing, Pastel Dream, Blossom, Turbo, Pitch Pro); up to 20 covers per PDF; optional extra line under the name (class, teacher); inkjet-friendly A4 printing.
 - Devices: works in any web browser on iPhone, Android and computers.
-- Pricing: free to design and preview; downloading costs R50 for the first set (one learner's covers) for 4 months, plus R25 for every set after that (maximum 3 sets per account; a 4th set needs a separate pass with a different email); once-off payment, not a subscription. Once unlocked, parents switch between sets, each with their own name, subjects and theme.
+- Pricing: free to design and preview. Sets (one learner's covers each) come in packs of up to 3: R50 for the first set in a pack, R25 each for the 2nd and 3rd. Each pack lasts exactly 4 months from its purchase date; sets added later expire with their pack. A 4th set on the same account starts a new pack at R50 with its own 4-month expiry. Once-off payments, not a subscription.
 - Payments: processed by Payfast (card, debit card, Instant EFT, Apple Pay, Google Pay).
 - Provider: Velvik (Pty) Ltd, South Africa. Contact: coetzerdominique25@gmail.com
 - Refunds: considered case by case at the provider's discretion; email the contact address with the purchase email.
 
 - Accounts: sign in with email and password on any device. Forgot password: reset with the payment reference from the Payfast receipt or invoice. Account shows payments, downloadable invoices and download history.
+- Schools: schools wanting uniform covers for a grade or the whole school get special pricing; enquiries to coetzerdominique25@gmail.com.

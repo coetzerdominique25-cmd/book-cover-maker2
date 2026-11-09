@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { makeToken, readToken, emailKey, json, validEmail, normName } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
 import { sendMail, mailReady } from "./lib/mail.mjs";
+import { view } from "./lib/packs.mjs";
 
 // Accounts: email + password. A password is set (or reset) either right after paying
 // (the pass token proves it) or with the email plus a payment reference from a receipt.
@@ -30,7 +31,7 @@ const clearFails = (s, ek) => s.setJSON("rl:" + ek, { n: 0, until: 0 });
 
 async function viewFor(s, lic) {
   const u = await s.get("user:" + emailKey(lic.email), { type: "json" });
-  return { status: lic.exp > Date.now() ? "active" : "expired", token: makeToken(lic), kids: lic.kids, exp: lic.exp, names: lic.names || [], email: lic.email, hasPassword: !!(u && u.hash) };
+  return view(lic, u);
 }
 
 async function paidOrders(s, lic) {
