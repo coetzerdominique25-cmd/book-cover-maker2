@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://schoolbookcovers.netlify.app/sitemap.xml
+Sitemap: https://schoolbookcover.co.za/sitemap.xml
