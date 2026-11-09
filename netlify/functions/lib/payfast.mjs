@@ -15,9 +15,11 @@ export function creds() {
   };
 }
 
-export const MIN_KIDS = 1, MAX_KIDS = 3, MONTHS = 4; // max 3 children per account
+export const MIN_KIDS = 1, MAX_KIDS = 3, MONTHS = 4, MAX_ORDER_SETS = 12; // 3 sets per pack, up to 12 sets (4 packs) in one order
 // R50 for the first child, R25 for each extra child.
-export const price = (kids) => 50 + 25 * (kids - 1);
+// Packs of 3: R50 for the first set in each pack, R25 for the 2nd and 3rd. 4 sets = R100 + R50.
+export const packSizes = (kids) => { const out = []; for (let n = kids; n > 0; n -= MAX_KIDS) out.push(Math.min(MAX_KIDS, n)); return out; };
+export const price = (kids) => packSizes(kids).reduce((a, n) => a + 50 + 25 * (n - 1), 0);
 
 // PHP urlencode() semantics, which Payfast signs against: spaces as +, uppercase hex, only A-Z a-z 0-9 - _ . left as-is.
 export function pfEncode(v) {

@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { HOST, creds, price, MIN_KIDS, MAX_KIDS, checkoutSignature, json, validEmail, readToken, emailKey } from "./lib/payfast.mjs";
+import { HOST, creds, price, packSizes, MIN_KIDS, MAX_KIDS, MAX_ORDER_SETS, checkoutSignature, json, validEmail, readToken, emailKey } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
 import { activePacks, topupPack } from "./lib/packs.mjs";
 
@@ -21,7 +21,7 @@ export default async (req) => {
     packId = tp.id;
     type = "topup"; email = lic.email; kids = extra; amountNum = 25 * extra;
   } else {
-    if (!(kids >= MIN_KIDS && kids <= MAX_KIDS)) return json({ error: `Choose between ${MIN_KIDS} and ${MAX_KIDS} sets per pack.` }, 400);
+    if (!(kids >= MIN_KIDS && kids <= MAX_ORDER_SETS)) return json({ error: `Choose between ${MIN_KIDS} and ${MAX_ORDER_SETS} sets.` }, 400);
     if (!validEmail(email)) return json({ error: "Please enter a valid email address." }, 400);
     amountNum = price(kids);
   }
@@ -41,7 +41,7 @@ export default async (req) => {
     ["email_address", email],
     ["m_payment_id", id],
     ["amount", amount],
-    ["item_name", type === "topup" ? `School Book Covers - ${extra} extra ${extra === 1 ? "set" : "sets"}` : `School Book Covers - pack of ${kids} ${kids === 1 ? "set" : "sets"}, 4 months`],
+    ["item_name", type === "topup" ? `School Book Covers - ${extra} extra ${extra === 1 ? "set" : "sets"}` : `School Book Covers - ${kids} ${kids === 1 ? "set" : "sets"} (${packSizes(kids).length} ${packSizes(kids).length === 1 ? "pack" : "packs"}), 4 months`],
   ];
   const signature = checkoutSignature(pairs, c.pass);
   return json({ action: `${HOST}/eng/process`, fields: [...pairs, ["signature", signature]], order: id });

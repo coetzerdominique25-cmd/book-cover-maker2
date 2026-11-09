@@ -1,4 +1,4 @@
-import { HOST, creds, itnParamString, itnSignature, addMonths, MONTHS, MAX_KIDS, emailKey } from "./lib/payfast.mjs";
+import { HOST, creds, itnParamString, itnSignature, addMonths, MONTHS, MAX_KIDS, emailKey, packSizes } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
 import { packsOf } from "./lib/packs.mjs";
 
@@ -27,7 +27,8 @@ export async function handleItn(rawBody, { validate = defaultValidate } = {}) {
     target.kids = Math.min(MAX_KIDS, target.kids + order.extra); // same expiry as that pack
   } else {
     // a new pack: its own 4 months from today
-    lic.packs.push({ id: order.id, kids: Math.min(MAX_KIDS, order.type === "topup" ? order.extra : order.kids), exp: addMonths(now, MONTHS).getTime(), start: now.getTime(), names: [] });
+    const sizes = packSizes(order.type === "topup" ? order.extra : order.kids);
+    sizes.forEach((n, i) => lic.packs.push({ id: sizes.length > 1 ? `${order.id}-${i + 1}` : order.id, kids: n, exp: addMonths(now, MONTHS).getTime(), start: now.getTime(), names: [] }));
   }
   lic.email = order.email;
   lic.orders = [...(lic.orders || []), order.id];
