@@ -15,8 +15,9 @@ export function creds() {
   };
 }
 
-export const MIN_KIDS = 2, MAX_KIDS = 8, MONTHS = 4;
-export const price = (kids) => 50 + 25 * (kids - 2);
+export const MIN_KIDS = 1, MAX_KIDS = 8, MONTHS = 4;
+// R50 for the first child, R25 for each extra child.
+export const price = (kids) => 50 + 25 * (kids - 1);
 
 // PHP urlencode() semantics, which Payfast signs against: spaces as +, uppercase hex, only A-Z a-z 0-9 - _ . left as-is.
 export function pfEncode(v) {

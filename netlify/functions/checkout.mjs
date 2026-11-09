@@ -25,7 +25,7 @@ export default async (req) => {
     ["email_address", email],
     ["m_payment_id", id],
     ["amount", amount],
-    ["item_name", `Book Cover Maker - ${kids} children, 4 months`],
+    ["item_name", `Book Cover Maker - ${kids} ${kids === 1 ? "child" : "children"}, 4 months`],
   ];
   const signature = checkoutSignature(pairs, c.pass);
   return json({ action: `${HOST}/eng/process`, fields: [...pairs, ["signature", signature]], order: id });
