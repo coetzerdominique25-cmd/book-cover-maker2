@@ -239,7 +239,10 @@ canvas{max-width:100%}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ioshint{color:var(--muted);font-weight:400}
 .price-pill b{color:var(--accent,#2F55D4)}
-.share-hero{margin-top:18px;display:inline-flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:999px;background:rgba(31,143,78,.12);border:1.5px solid #1F8F4E;color:var(--ink);text-decoration:none;max-width:100%;transition:transform .15s,box-shadow .15s}
+.sch-pill{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 12px;border-radius:999px;border:1px dashed var(--accent);color:var(--ink);text-decoration:none;font-size:13.5px;background:rgba(47,85,212,.06)}
+.sch-pill:hover{background:rgba(47,85,212,.12)}
+.sch-pill b{color:var(--accent)}
+.share-hero{margin-top:14px;display:inline-flex;align-items:center;gap:12px;padding:10px 16px 10px 10px;border-radius:999px;background:rgba(31,143,78,.12);border:1.5px solid #1F8F4E;color:var(--ink);text-decoration:none;max-width:100%;transition:transform .15s,box-shadow .15s}
 .share-hero:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(31,143,78,.25)}
 .share-hero b{display:block;font-size:15px;line-height:1.2}
 .share-hero small{display:block;font-size:13px;color:var(--muted);line-height:1.3}
@@ -295,6 +298,7 @@ canvas{max-width:100%}
     <p class="lede">Type your child's name, pick their subjects and a look they'll love. Download one PDF with every cover and print it at home.</p>
     <div class="hero-cta"><a class="btn primary big" href="#maker">Start designing, it's free</a><a class="btn big ghost price-pill" href="#pricing"><b>Only R50 a set</b> · extra sets just R25</a></div>
     <ul class="ticks"><li>25 South African subjects</li><li>12 themes</li><li>Prints on any home printer</li></ul>
+    <a class="sch-pill" href="#schools"><span aria-hidden="true">🏫</span> <b>Schools:</b> bulk pricing for a whole grade or school <span aria-hidden="true">→</span></a>
     <a class="share-hero" id="wa" href="#" target="_blank" rel="noopener"><span class="share-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 11.5h7M12 8v7"/></svg></span><span><b>Know another parent?</b><small>Share with your class WhatsApp group</small></span><span class="share-go" aria-hidden="true">→</span></a>
   </div>
   <div class="hero-art" aria-hidden="true"><canvas id="hc0"></canvas><canvas id="hc1"></canvas><canvas id="hc2"></canvas></div>
