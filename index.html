@@ -68,6 +68,14 @@ canvas{max-width:100%}
 .after{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.after a.btn{text-decoration:none;color:var(--ink)}
 .warn{color:var(--warn);border-top:1px solid var(--line);padding-top:8px}
 .btn.big{font-size:17px;padding:13px 22px}
+.btn.wa{background:#1F8F4E;border-color:#1F8F4E;color:#fff;text-decoration:none;font-size:14px}
+.steps{list-style:none;counter-reset:st;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:0;margin:0 0 18px}
+.steps li{counter-increment:st;display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.steps li::before{content:counter(st);flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700}
+.opts{grid-column:2/-1}
+.opts summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--accent);padding:2px 0}
+.opts[open] summary{margin-bottom:6px}
+.opts>input{width:100%;margin-bottom:6px}
 .linkbtn{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;flex-basis:100%;text-align:left}
 #printArea{display:none}
 @media print{
@@ -100,9 +108,14 @@ canvas{max-width:100%}
   <header class="top">
     <div>
       <h1>Book Cover Maker</h1>
-      <p class="sub">Type the name, grade and subjects, choose a theme, then download a print-ready A4 PDF. Colours are chosen to print well on a home inkjet. Works offline, and your entries are remembered in this browser.</p>
+      <p class="sub">Make matching school book covers and print them at home.</p>
     </div>
   </header>
+  <ol class="steps">
+    <li><b>Type your child's name and grade</b></li>
+    <li><b>Pick the subjects</b> (and a look you like)</li>
+    <li><b>Tap Download PDF</b> and print on A4</li>
+  </ol>
 
   <div class="layout">
     <div class="panel">
@@ -128,7 +141,7 @@ canvas{max-width:100%}
       </div>
       <ul class="tips">
         <li>Use <b>Copies</b> for subjects with more than one book.</li>
-        <li>The <b>subtitle</b> line prints under the name: a class, teacher or nickname.</li>
+        <li>Tap <b>More options</b> on a subject to add a class or teacher under the name, or change its colour and icon.</li>
         <li>Pick <b>Other subject</b> to type your own, then choose its colour and icon.</li>
         <li>Print the PDF on A4 at <b>Actual size</b>.</li>
       </ul>
@@ -138,6 +151,7 @@ canvas{max-width:100%}
       <div class="dl">
         <button class="btn primary big" id="pdf" type="button" disabled>Preparing PDF…</button>
         <div class="status" id="status" aria-live="polite"></div>
+        <a class="btn wa" id="wa" href="#" target="_blank" rel="noopener">Share with other parents on WhatsApp</a>
         <button class="linkbtn" id="asimg" type="button" hidden>Didn't download? Show the covers as pictures</button>
         <div class="warn" id="framewarn" hidden>This file is open inside a preview, which can block downloads. Save the file and open it in Chrome, Edge or Safari.</div>
       </div>
@@ -644,8 +658,10 @@ function renderRows(){
       <label class="copies">COPIES<select id="n${i}">${copies}</select></label>
       <button class="iconbtn" id="x${i}" type="button" aria-label="Remove ${esc(sp.full)}">×</button>
       ${c.s==="__custom"?`<input class="custom" type="text" id="t${i}" maxlength="34" placeholder="Type the subject name" value="${esc(c.text||"")}">`:""}
-      <input class="custom" type="text" id="u${i}" maxlength="44" placeholder="Subtitle under the name (optional), e.g. Class 8B" value="${esc(c.note||"")}">
-      <div class="more"><select id="c${i}" aria-label="Colour">${colourOptions(sp.col)}</select><select id="i${i}" aria-label="Icon">${iconOptions(sp.icon)}</select></div>`;
+      <details class="opts" id="d${i}"${c.open?" open":""}><summary>More options</summary>
+        <input type="text" id="u${i}" maxlength="44" placeholder="Extra line under the name, e.g. Class 8B" value="${esc(c.note||"")}">
+        <div class="more"><select id="c${i}" aria-label="Colour">${colourOptions(sp.col)}</select><select id="i${i}" aria-label="Icon">${iconOptions(sp.icon)}</select></div>
+      </details>`;
     box.appendChild(row);
     $("s"+i).onchange=e=>{c.s=e.target.value;delete c.col;delete c.icon;renderRows();changed()};
     $("n"+i).onchange=e=>{c.n=+e.target.value;renderRows();changed()};
@@ -654,6 +670,7 @@ function renderRows(){
     $("i"+i).onchange=e=>{c.icon=e.target.value;changed()};
     const t=$("t"+i);if(t)t.oninput=e=>{c.text=e.target.value;changed()};
     $("u"+i).oninput=e=>{c.note=e.target.value;changed()};
+    $("d"+i).ontoggle=e=>{c.open=e.target.open;save()};
   });
   const t=total();
   $("count").innerHTML=`<b>${t}</b> of ${MAX} covers`;
@@ -1078,6 +1095,9 @@ $("closegal").onclick=()=>{$("gallery").hidden=true};
 const iosInApp=isIOS&&!/Safari\//.test(navigator.userAgent)&&!/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent);
 if(inFrame||iosInApp){$("framewarn").hidden=false;$("framewarn").textContent="This is open inside an app preview, which can't save files. Open the cover maker in Safari or Chrome to download the PDF, or use the pictures link below.";$("asimg").hidden=false}
 $("nojs").hidden=true;
+const SITE="https://coetzerdominique25-cmd.github.io/book-cover-maker2/";
+const shareUrl=/^https?:/.test(location.href)?location.href.split("#")[0]:SITE;
+$("wa").href="https://wa.me/?text="+encodeURIComponent("Make your child's school book covers here, then tap Download PDF and print on A4: "+shareUrl);
 window.__bcm=drawCover;
 renderRows();
 const ready=document.fonts?Promise.all(["400 20px Anton","700 20px 'JetBrains Mono'","700 20px 'Space Grotesk'","italic 600 20px Barlow"].map(f=>document.fonts.load(f))).catch(()=>{}):Promise.resolve();
