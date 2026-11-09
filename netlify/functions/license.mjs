@@ -1,7 +1,7 @@
 import { makeToken, readToken, emailKey, normName, json, validEmail } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
 
-const view = (lic) => ({ status: "active", token: makeToken(lic), kids: lic.kids, exp: lic.exp, names: lic.names || [] });
+const view = (lic) => ({ status: lic.exp > Date.now() ? "active" : "expired", token: makeToken(lic), kids: lic.kids, exp: lic.exp, names: lic.names || [], email: lic.email });
 
 export default async (req) => {
   const s = store();

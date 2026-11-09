@@ -74,10 +74,22 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .count b{color:var(--ink)}
-.dl{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.dl{position:sticky;top:calc(var(--navh) + env(safe-area-inset-top,0px));z-index:5;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:14px}
 .status{font-size:13px;color:var(--muted);min-height:1.2em}
 .status.err{color:var(--warn)}
 [hidden]{display:none!important}
+.nav-pass{font-size:14px;padding:8px 14px}
+.acct-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.acct-row:last-child{border-bottom:0}
+.acct-k{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.acct-v{font-weight:600;word-break:break-word}
+.kidrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:var(--bg)}
+.kidrow b{font-size:14px}
+.kidrow .tag{font-size:11px;font-weight:700;color:var(--accent)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.acct-box{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);display:flex;flex-direction:column;gap:10px}
+.acct-actions{display:flex;flex-wrap:wrap;gap:8px}
+
 .card{position:relative}
 .card canvas{cursor:zoom-in;transition:transform .22s ease,box-shadow .22s ease}
 @media (hover:hover) and (pointer:fine){.card:hover{z-index:15}.card:hover canvas{transform:scale(1.9);box-shadow:0 24px 60px rgba(20,22,26,.35)}}
@@ -86,15 +98,30 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 .lightbox canvas{max-height:92vh;max-width:92vw;width:auto;height:auto;border-radius:6px;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.4)}
 .lightbox button{position:absolute;top:max(10px,env(safe-area-inset-top,0px));right:14px;width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:#111;font-size:26px;line-height:1;cursor:pointer}
 
-.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--panel);border-bottom:1px solid var(--line)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:40;background:var(--panel);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px);box-shadow:0 1px 8px rgba(20,22,26,.06)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:41;background:var(--panel)}
+:root{--navh:58px}
+body{padding-top:calc(var(--navh) + env(safe-area-inset-top,0px))}
+html{scroll-padding-top:calc(var(--navh) + 12px)}
 .nav-in{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:16px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:700;font-size:17px;margin-right:auto}
-.brand svg{width:30px;height:30px}
+.brand svg{width:38px;height:38px;flex:none}
+.wm{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.6px;line-height:1;color:var(--ink);white-space:nowrap}
+.wm em{font-style:normal;color:var(--accent)}
 .nav-links{display:flex;gap:18px}
 .nav-links a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px}
 .nav-links a:hover{color:var(--ink)}
 .nav-cta{text-decoration:none;font-size:14px;padding:8px 14px}
-@media (max-width:640px){.nav-links{display:none}}
+@media (max-width:640px){
+  :root{--navh:96px}
+  .nav-in{flex-wrap:wrap;row-gap:6px;padding-block:8px 6px}
+  .nav-links{order:3;flex-basis:100%;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links a{flex:none;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--bg);font-size:13px}
+  .wm{font-size:19px}
+  .brand svg{width:32px;height:32px}
+  .nav-pass,.nav-cta{padding:7px 10px;font-size:13px}
+}
 .hero{background:var(--panel);border-bottom:1px solid var(--line)}
 .hero-in{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:center;padding-block:44px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 @media (max-width:860px){.hero-in{grid-template-columns:minmax(0,1fr);padding-block:28px 24px}}
@@ -213,8 +240,9 @@ canvas{max-width:100%}
 
 <div class="nojs" id="nojs"><b>This preview can't run the cover maker.</b> Open the file in a web browser instead: on a computer, save it and double-click it; on Android, tap the file and choose <b>Chrome</b>.</div>
 <nav class="nav"><div class="nav-in">
-  <a class="brand" href="#top"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#2F55D4"/><path d="M18 14h22l8 8v28H18z" fill="#fff"/><path d="M40 14v8h8" fill="#C9D4F7"/><rect x="22" y="38" width="22" height="7" rx="2" fill="#E63946"/><rect x="22" y="27" width="16" height="4" rx="2" fill="#2F55D4"/></svg><span>Book Cover Maker</span></a>
-  <div class="nav-links"><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+  <a class="brand" href="#top" aria-label="Book Cover Maker home"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="12" width="30" height="40" rx="4" fill="#F07800" transform="rotate(-14 23 32)"/><rect x="26" y="12" width="30" height="40" rx="4" fill="#2E9E44" transform="rotate(12 41 32)"/><rect x="17" y="8" width="30" height="44" rx="4" fill="#2F55D4"/><rect x="21" y="13" width="16" height="4" rx="2" fill="#fff" opacity=".9"/><rect x="21" y="36" width="22" height="10" rx="2.5" fill="#fff"/><rect x="24" y="39.5" width="12" height="3" rx="1.5" fill="#E63946"/></svg><span class="wm">Book Cover <em>Maker</em></span></a>
+  <div class="nav-links"><a href="#maker">Make covers</a><a href="#how">How it works</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+  <button class="btn nav-pass" id="navPass" type="button">My pass</button>
   <a class="btn primary nav-cta" href="#maker">Start designing</a>
 </div></nav>
 <header class="hero" id="top"><div class="hero-in">
@@ -284,7 +312,7 @@ canvas{max-width:100%}
     <h2 id="aboutTitle">Printable school book covers in minutes</h2>
     <p>Book Cover Maker helps South African parents label and cover school books quickly. Type your child's name and grade once, choose the subjects, and get a full set of matching A4 covers in one PDF. Every subject gets its own colour and icon, so your child can find the right book at a glance.</p>
     <div class="feat">
-      <div><h3>12 themes kids like</h3><p>From Street Label, Sticker Bomb and Retro Wave to Pastel Dream, Blossom, Turbo and Pitch Pro.</p></div>
+      <div><h3>12 themes for every age</h3><p>Something for little ones, teens and grown-ups: from Pastel Dream, Blossom, Turbo and Pitch Pro to Street Label, Retro Wave and Boarding Pass.</p></div>
       <div><h3>25 SA subjects</h3><p>From English, Afrikaans and isiZulu to Maths, Natural Sciences, EMS, Geography, History, Life Orientation and more, or type your own.</p></div>
       <div><h3>Prints at home</h3><p>White backgrounds and inkjet-friendly colours that print cleanly on A4 at home.</p></div>
       <div><h3>Simple pricing</h3><p>Free to design. R50 unlocks downloads for one child for 4 months, plus R25 per extra child. Paid securely through Payfast.</p></div>
@@ -307,6 +335,14 @@ canvas{max-width:100%}
 <footer class="foot"><div class="about-in">Book Cover Maker · Printable school book covers for South African learners · Payments processed securely by Payfast</div></footer>
 
 <div id="printArea" aria-hidden="true"></div>
+<div class="modal" id="acct" hidden role="dialog" aria-modal="true" aria-labelledby="acctTitle">
+  <div class="sheet">
+    <button class="x" id="acctClose" type="button" aria-label="Close">×</button>
+    <h2 id="acctTitle">My pass</h2>
+    <div id="acctBody"></div>
+    <div class="pwmsg" id="acctMsg" aria-live="polite"></div>
+  </div>
+</div>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Cover preview"><button type="button" id="lbClose" aria-label="Close preview">×</button><canvas id="lbCanvas"></canvas></div>
 <div class="modal" id="paywall" hidden role="dialog" aria-modal="true" aria-labelledby="pwTitle">
   <div class="sheet">
@@ -1395,7 +1431,7 @@ async function build(){
 function scheduleBuild(){clearTimeout(buildTimer);gen++;pdfReady=null;setBtn();if(!isUnlocked())return;buildTimer=setTimeout(()=>build().catch(()=>{status("Couldn't build the PDF here.",true);$("asimg").hidden=false}),900)}
 function anchorDownload(){const a=document.createElement("a");a.href=pdfReady.url;a.download=pdfReady.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 async function api(path,opts){const r=await fetch(API+path,opts);let j={};try{j=await r.json()}catch(e){}return {ok:r.ok,status:r.status,body:j}}
-function applyPass(b){savePass({token:b.token,kids:b.kids,exp:b.exp,names:b.names||[]});renderPreview();renderThemes();scheduleBuild()}
+function applyPass(b){savePass({token:b.token,kids:b.kids,exp:b.exp,names:b.names||[],email:b.email||(LIC&&LIC.email)||""});renderPreview();renderThemes();scheduleBuild()}
 async function claim(){const nm=normName(state.name);$("pdf").disabled=true;
   try{const r=await api("/license",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token:LIC.token,name:nm})});
     if(r.ok&&r.body.token){applyPass(r.body);status(`${nm} is on your pass.`)}
@@ -1463,7 +1499,7 @@ async function confirmReturn(order){
   if(paid||q.has("cancelled"))history.replaceState(null,"",location.pathname);
   if(paid)confirmReturn(paid);else if(q.has("cancelled"))status("Payment cancelled. You weren't charged.");
   if(isUnlocked())setTimeout(async()=>{try{const r=await api("/license",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token:LIC.token,name:(LIC.names||[])[0]||state.name||"-"})});
-    if(r.status===403||r.status===401){savePass(null);renderPreview();renderThemes();setBtn()}}catch(e){}},0);
+    if(r.status===401){savePass(null)}if(r.status===403||r.status===401){renderPreview();renderThemes();setBtn();renderKids()}}catch(e){}},0);
 })();
 $("asimg").onclick=async()=>{
   if(!isUnlocked()||!nameOnPass()){openPay();return}
@@ -1493,6 +1529,58 @@ function renderKids(){const bar=$("kidsBar");if(!isUnlocked()){bar.hidden=true;r
   if(left>0){const a=document.createElement("button");a.type="button";a.className="chip add";a.textContent=`+ Add child (${left} left)`;a.onclick=addChild;box.appendChild(a)}}
 const _changed=changed;changed=function(){_changed();saveProfile();renderKids()};
 const _applyPass=applyPass;applyPass=function(b){_applyPass(b);saveProfile();renderKids()};
+
+// ---- My pass (account) ----
+let extra=1;
+function acctMsg(t){$("acctMsg").textContent=t||""}
+function openAcct(){renderAccount();acctMsg("");$("acct").hidden=false}
+function closeAcct(){$("acct").hidden=true}
+$("navPass").onclick=openAcct;$("acctClose").onclick=closeAcct;$("acct").addEventListener("click",e=>{if(e.target.id==="acct")closeAcct()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("acct").hidden)closeAcct()});
+function renderAccount(){
+  const box=$("acctBody");const active=isUnlocked();
+  if(!LIC||!LIC.token){
+    box.innerHTML=`<p class="lead">No pass on this device yet. No password needed: your pass is linked to the email you paid with.</p>
+      <div class="acct-actions"><button class="btn primary big full" id="aBuy" type="button">Buy a pass · R50 per child</button></div>
+      <div class="acct-box"><b>Already paid on another phone or computer?</b><label class="f">Email you paid with<input type="email" id="aEmail" autocomplete="email" inputmode="email"></label><button class="btn" id="aRestore" type="button">Restore my pass</button></div>`;
+    try{$("aEmail").value=localStorage.getItem("bcm-email")||""}catch(e){}
+    $("aBuy").onclick=()=>{closeAcct();openPay()};$("aRestore").onclick=()=>restoreFrom($("aEmail").value.trim());return}
+  if(!active){
+    box.innerHTML=`<div class="acct-row"><span class="acct-k">Status</span><span class="acct-v" style="color:var(--warn)">Ended ${fmtDate(LIC.exp)}</span></div>
+      <p class="lead">Renew to keep downloading. Your children's names, subjects and themes stay saved on this device.</p>
+      <div class="acct-actions"><button class="btn primary big full" id="aRenew" type="button">Renew · R50 per child</button><button class="btn" id="aOut" type="button">Sign out on this device</button></div>`;
+    $("aRenew").onclick=()=>{closeAcct();openPay();if(LIC.email)$("pEmail").value=LIC.email};$("aOut").onclick=signOut;return}
+  const names=LIC.names||[];const cur=normName(state.name);const left=LIC.kids-names.length;
+  box.innerHTML=`<div class="acct-row"><span class="acct-k">Status</span><span class="acct-v">Active until ${fmtDate(LIC.exp)}</span></div>
+    ${LIC.email?`<div class="acct-row"><span class="acct-k">Email</span><span class="acct-v">${esc(LIC.email)}</span></div>`:""}
+    <div class="acct-row" style="display:block"><span class="acct-k">Children · ${names.length} of ${LIC.kids} used</span><div id="aKids"></div></div>
+    <div class="acct-box"><b>Need more children on this pass?</b><span class="fine">R25 per extra child. Your expiry date stays the same.</span>
+      <div class="kids"><span>Extra children</span><div class="stepper"><button type="button" id="eMinus" aria-label="Fewer">−</button><output id="eOut">1</output><button type="button" id="ePlus" aria-label="More">+</button></div></div>
+      <button class="btn primary" id="aTop" type="button">Add 1 child · R25</button></div>
+    <div class="acct-box"><b>Use it on another phone or computer</b><span class="fine">Open this website there, tap <b>My pass</b> and restore with ${LIC.email?`<b>${esc(LIC.email)}</b>`:"the email you paid with"}. No password needed.</span></div>
+    <div class="acct-actions"><button class="btn" id="aOut" type="button">Sign out on this device</button></div>`;
+  const kb=$("aKids");
+  names.forEach(k=>{const r=document.createElement("div");r.className="kidrow";r.innerHTML=`<b>${esc(k)}</b>${k===cur?'<span class="tag">Showing now</span>':''}`;
+    if(k!==cur){const b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent="Open";b.onclick=()=>{switchChild(k);closeAcct();location.hash="maker"};r.appendChild(b)}kb.appendChild(r)});
+  if(left>0){const r=document.createElement("div");r.className="kidrow";r.innerHTML=`<span>${left} free ${left===1?"place":"places"} on your pass</span>`;const b=document.createElement("button");b.type="button";b.className="btn sm primary";b.textContent="+ Add a child";b.onclick=()=>{closeAcct();addChild();location.hash="maker"};r.appendChild(b);kb.appendChild(r)}
+  if(!names.length&&left<=0)kb.innerHTML='<p class="fine">No children added yet.</p>';
+  extra=1;const paint=()=>{$("eOut").textContent=extra;$("aTop").textContent=`Add ${extra} ${extra===1?"child":"children"} · R${25*extra}`;$("eMinus").disabled=extra<=1;$("ePlus").disabled=extra>=6};paint();
+  $("eMinus").onclick=()=>{if(extra>1){extra--;paint()}};$("ePlus").onclick=()=>{if(extra<6){extra++;paint()}};
+  $("aTop").onclick=buyTopup;$("aOut").onclick=signOut;
+}
+async function buyTopup(){const b=$("aTop");b.disabled=true;acctMsg("");
+  try{const r=await api("/checkout",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({topup:true,token:LIC.token,extra})});
+    if(!r.ok||!r.body.action){acctMsg(r.body.error||"Couldn't start the payment. Please try again.");b.disabled=false;return}
+    const f=document.createElement("form");f.method="POST";f.action=r.body.action;f.style.display="none";
+    r.body.fields.forEach(([k,v])=>{const i=document.createElement("input");i.type="hidden";i.name=k;i.value=v;f.appendChild(i)});document.body.appendChild(f);f.submit()}
+  catch(e){acctMsg("Couldn't connect. Check your internet and try again.");b.disabled=false}}
+async function restoreFrom(email){if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){acctMsg("Please enter a valid email address.");return}
+  acctMsg("Checking…");try{const r=await api("/license?email="+encodeURIComponent(email));
+    if(r.ok&&r.body.token){try{localStorage.setItem("bcm-email",email)}catch(e){}applyPass(r.body);renderAccount();acctMsg("");status("Welcome back. Your pass is active.")}
+    else acctMsg("No active pass found for that email. Check the spelling, or buy a pass.")}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}}
+function signOut(){savePass(null);try{localStorage.removeItem("bcm-pass")}catch(e){}renderPreview();renderThemes();renderKids();setBtn();renderAccount();status("Signed out on this device. Restore any time with your email.")}
+const _renderKids=renderKids;renderKids=function(){_renderKids();const n=$("navPass");if(n)n.textContent=isUnlocked()?"My pass ✓":"My pass"};
+
 // ---- Large preview ----
 function openLightbox(c,i){drawCover($("lbCanvas"),c,i,1100);$("lightbox").hidden=false}
 $("lbClose").onclick=()=>{$("lightbox").hidden=true};$("lightbox").addEventListener("click",e=>{if(e.target.id==="lightbox")$("lightbox").hidden=true});

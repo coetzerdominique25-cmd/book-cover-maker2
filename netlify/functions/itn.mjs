@@ -21,10 +21,11 @@ export async function handleItn(rawBody, { validate = defaultValidate } = {}) {
   const prev = await s.get(key, { type: "json" });
   const now = new Date();
   const active = prev && prev.exp > now.getTime();
+  const topup = order.type === "topup" && active;
   const lic = {
     email: order.email,
-    kids: active ? Math.max(prev.kids, order.kids) : order.kids,
-    exp: addMonths(now, MONTHS).getTime(),
+    kids: topup ? prev.kids + order.extra : (active ? Math.max(prev.kids, order.kids) : order.kids),
+    exp: topup ? prev.exp : addMonths(now, MONTHS).getTime(),
     names: active ? prev.names || [] : [],
     orders: [...(prev?.orders || []), order.id],
   };
