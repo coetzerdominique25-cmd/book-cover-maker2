@@ -145,8 +145,8 @@ function page(p) {
 <p class="crumbs"><a href="/">Home</a> › <a href="/covers/">Book covers</a> › ${esc(p.label)}</p>
 <section class="hero"><div><h1>${esc(p.h1)}</h1><p class="lead">${esc(p.lead)}</p>
 <div class="ctas"><a class="btn" href="${appLink(p.cta)}">Start designing, it's free</a><a class="btn ghost" href="/#pricing">From as little as R50</a></div></div>
-<div class="covers">${imgs.slice(0, 3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" loading="eager" decoding="async"><figcaption>${esc(im.cap)}</figcaption></figure>`).join("")}</div></section>
-${imgs.length > 3 ? `<div class="covers" style="margin-bottom:12px">${imgs.slice(3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" loading="lazy" decoding="async"><figcaption>${esc(im.cap)}</figcaption></figure>`).join("")}</div>` : ""}
+<div class="covers">${imgs.slice(0, 3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" data-pin-description="${esc(im.alt)}. Make yours with your child's name at schoolbookcover.co.za" loading="eager" decoding="async"><figcaption>${esc(im.cap)}</figcaption></figure>`).join("")}</div></section>
+${imgs.length > 3 ? `<div class="covers" style="margin-bottom:12px">${imgs.slice(3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" data-pin-description="${esc(im.alt)}. Make yours with your child's name at schoolbookcover.co.za" loading="lazy" decoding="async"><figcaption>${esc(im.cap)}</figcaption></figure>`).join("")}</div>` : ""}
 <section class="card">${p.body.map(t => `<p>${esc(t)}</p>`).join("")}</section>
 <section class="card"><h2>How it works</h2><ol class="steps"><li>Type your child's name and grade (and school, if you like).</li><li>Pick the subjects and one of 12 themes. Preview every cover for free.</li><li>Unlock and download one PDF, then print on A4 at home.</li></ol>
 <div class="price"><span>First set R50</span><span>2nd &amp; 3rd set R25 each</span><span>Valid 4 months</span><span>Secure Payfast checkout</span></div>
