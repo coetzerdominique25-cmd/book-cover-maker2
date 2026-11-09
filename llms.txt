@@ -8,3 +8,5 @@
 - Devices: works in any web browser on iPhone, Android and computers.
 - Pricing: free to design and preview; downloading costs R50 for one child for 4 months, plus R25 per extra child; once-off payment, not a subscription. Once unlocked, parents switch between children, each with their own name, subjects and theme.
 - Payments: processed by Payfast (card, debit card, Instant EFT, Apple Pay, Google Pay).
+- Provider: Velvik (Pty) Ltd, South Africa. Contact: coetzerdominique@gmail.com
+- Refunds: considered case by case at the provider's discretion; email the contact address with the purchase email.
