@@ -110,6 +110,7 @@ h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:6px 0 10px;letter-spaci
 details{border-bottom:1px solid var(--line);padding:10px 0}summary{cursor:pointer;font-weight:700}
 .links{columns:3 200px;column-gap:18px;padding:0;list-style:none;margin:0}.links li{margin:3px 0;break-inside:avoid}.links a{text-decoration:none}
 .ctas{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
+.pin{display:inline-flex;align-items:center;gap:3px;color:#E60023;font-weight:700;text-decoration:none}
 footer{color:var(--muted);font-size:13px;padding:26px 0 40px}`;
 
 const LOGO = `<svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="12" width="30" height="40" rx="4" fill="#F07800" transform="rotate(-14 23 32)"/><rect x="26" y="12" width="30" height="40" rx="4" fill="#2E9E44" transform="rotate(12 41 32)"/><rect x="17" y="8" width="30" height="44" rx="4" fill="#2F55D4"/><rect x="22" y="14" width="20" height="6" rx="2" fill="#fff"/><rect x="22" y="40" width="20" height="5" rx="2" fill="#E63946"/></svg>`;
@@ -120,6 +121,8 @@ function related(p) {
   return [...same, ...other];
 }
 
+const pinUrl = (pageUrl, img, desc) => "https://www.pinterest.com/pin/create/button/?" + new URLSearchParams({ url: pageUrl, media: img, description: desc }).toString();
+const PIN = `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#E60023"/><path d="M12.3 5.5c-3.7 0-5.6 2.6-5.6 4.8 0 1.3.5 2.5 1.6 2.9.2.1.3 0 .4-.2l.1-.6c.1-.2 0-.3-.1-.5-.3-.4-.5-.9-.5-1.6 0-2.1 1.6-3.9 4.1-3.9 2.2 0 3.5 1.4 3.5 3.2 0 2.4-1.1 4.5-2.7 4.5-.9 0-1.5-.7-1.3-1.6.2-1.1.7-2.2.7-3 0-.7-.4-1.3-1.2-1.3-.9 0-1.7 1-1.7 2.3 0 .8.3 1.4.3 1.4l-1.1 4.6c-.3 1.4 0 3.1 0 3.2 0 .1.1.1.2 0 .1-.1 1.1-1.4 1.5-2.7l.6-2.3c.3.6 1.2 1.1 2.2 1.1 2.9 0 4.8-2.6 4.8-6.1 0-2.6-2.3-5.1-5.8-5.1z" fill="#fff"/></svg>`;
 function page(p) {
   const url = `${BASE}/covers/${p.slug}/`;
   const imgs = p.examples.map(([s, t, n, g]) => ({ src: `/img/covers/${imgName(s, t)}`, alt: `${s} school book cover in the ${THEMES[t].name} theme with the name ${n.split(" ")[0]} and Grade ${g}`, cap: `${s} · ${THEMES[t].name}` }));
@@ -145,8 +148,8 @@ function page(p) {
 <p class="crumbs"><a href="/">Home</a> › <a href="/covers/">Book covers</a> › ${esc(p.label)}</p>
 <section class="hero"><div><h1>${esc(p.h1)}</h1><p class="lead">${esc(p.lead)}</p>
 <div class="ctas"><a class="btn" href="${appLink(p.cta)}">Start designing, it's free</a><a class="btn ghost" href="/#pricing">From as little as R50</a></div></div>
-<div class="covers">${imgs.slice(0, 3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" data-pin-description="${esc(im.alt)}. Make yours with your child's name at schoolbookcover.co.za" loading="eager" decoding="async"><figcaption>${esc(im.cap)}</figcaption></figure>`).join("")}</div></section>
-${imgs.length > 3 ? `<div class="covers" style="margin-bottom:12px">${imgs.slice(3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" data-pin-description="${esc(im.alt)}. Make yours with your child's name at schoolbookcover.co.za" loading="lazy" decoding="async"><figcaption>${esc(im.cap)}</figcaption></figure>`).join("")}</div>` : ""}
+<div class="covers">${imgs.slice(0, 3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" data-pin-description="${esc(im.alt)}. Make yours with your child's name at schoolbookcover.co.za" loading="eager" decoding="async"><figcaption>${esc(im.cap)} · <a class="pin" href="${pinUrl(url, BASE + im.src, im.alt + ". Make yours with your child's name at schoolbookcover.co.za")}" target="_blank" rel="noopener">${PIN} Save</a></figcaption></figure>`).join("")}</div></section>
+${imgs.length > 3 ? `<div class="covers" style="margin-bottom:12px">${imgs.slice(3).map(im => `<figure><img src="${im.src}" width="600" height="849" alt="${esc(im.alt)}" data-pin-description="${esc(im.alt)}. Make yours with your child's name at schoolbookcover.co.za" loading="lazy" decoding="async"><figcaption>${esc(im.cap)} · <a class="pin" href="${pinUrl(url, BASE + im.src, im.alt + ". Make yours with your child's name at schoolbookcover.co.za")}" target="_blank" rel="noopener">${PIN} Save</a></figcaption></figure>`).join("")}</div>` : ""}
 <section class="card">${p.body.map(t => `<p>${esc(t)}</p>`).join("")}</section>
 <section class="card"><h2>How it works</h2><ol class="steps"><li>Type your child's name and grade (and school, if you like).</li><li>Pick the subjects and one of 12 themes. Preview every cover for free.</li><li>Unlock and download one PDF, then print on A4 at home.</li></ol>
 <div class="price"><span>First set R50</span><span>2nd &amp; 3rd set R25 each</span><span>Valid 4 months</span><span>Secure Payfast checkout</span></div>
