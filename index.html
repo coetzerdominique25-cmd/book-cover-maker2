@@ -58,6 +58,7 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,5vw,46px);lin
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
 input,select,button{font:inherit;color:var(--ink)}
 input[type=text],input[type=email],input[type=number],select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 9px;width:100%;min-width:0;font-size:15px}
+input::placeholder{color:var(--muted);opacity:.7}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .covers{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .row{display:grid;grid-template-columns:22px minmax(0,1fr) 70px 34px;gap:6px 8px;align-items:center;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
@@ -274,10 +275,10 @@ canvas{max-width:100%}
       <div class="kidsbar" id="kidsBar" hidden><h2>Your children</h2><div class="chips" id="kidChips"></div></div>
       <h2>Learner</h2>
       <div class="fields">
-        <label class="f">Child's name<input type="text" id="name" maxlength="28" autocomplete="off"></label>
-        <label class="f">Grade<input type="text" id="grade" maxlength="4"></label>
-        <label class="f">School (optional)<input type="text" id="school" maxlength="40"></label>
-        <label class="f">Year<input type="text" id="year" maxlength="4" inputmode="numeric"></label>
+        <label class="f">Child's name<input type="text" id="name" maxlength="28" autocomplete="off" placeholder="e.g. Thandi Mokoena"></label>
+        <label class="f">Grade<input type="text" id="grade" maxlength="4" placeholder="e.g. 8"></label>
+        <label class="f">School (optional)<input type="text" id="school" maxlength="40" placeholder="e.g. Jeppe High School"></label>
+        <label class="f">Year<input type="text" id="year" maxlength="4" inputmode="numeric" placeholder="e.g. 2027"></label>
       </div>
 
       <h2 style="margin-top:18px">Theme</h2>
@@ -850,11 +851,12 @@ const P=[
 ];
 const PRE={};P.forEach(p=>PRE[p[0]]={full:p[0],lines:p[1],col:p[2],icon:p[3],glyph:p[4],tag:p[5],word:p[6]||"HELLO!"});
 
-const DEFAULT={theme:"street",name:"Name Surname",grade:"8",school:"",year:"2027",covers:[
+const DEFAULT={theme:"street",name:"",grade:"",school:"",year:"",covers:[
  {s:"English",n:1},{s:"Afrikaans",n:1},{s:"Mathematics",n:2},{s:"Natural Sciences",n:2},{s:"Economic & Management Sciences",n:1},{s:"Geography",n:1},{s:"History",n:1},{s:"Dramatic Arts",n:1}]};
 let state;
 try{state=JSON.parse(localStorage.getItem("bcm-state-v2")||"null")}catch(e){state=null}
 if(!state||!Array.isArray(state.covers))state=JSON.parse(JSON.stringify(DEFAULT));
+state.name="";state.grade="";state.school="";state.year=""; // learner details always start blank
 if(!state.theme||!["street","level","hype","sticker","retro","card","ticket","player","pastel","blossom","turbo","pitch"].includes(state.theme))state.theme="street";
 let LIC=null;try{LIC=JSON.parse(localStorage.getItem("bcm-pass")||"null")}catch(e){}
 function isUnlocked(){return !!(LIC&&LIC.token&&LIC.exp>Date.now())}
