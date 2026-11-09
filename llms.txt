@@ -4,7 +4,7 @@
 
 - Website: https://schoolbookcovers.netlify.app/
 - Audience: parents, learners and teachers in South Africa (primary and high school)
-- What it does: type a name and grade, choose subjects (25 South African school subjects built in, or any custom subject) and one of 8 themes (Street Label, Level Up, Hype Drop, Sticker Bomb, Retro Wave, Trading Card, Boarding Pass, Now Playing); up to 20 covers per PDF; optional extra line under the name (class, teacher); inkjet-friendly A4 printing.
+- What it does: type a name and grade, choose subjects (25 South African school subjects built in, or any custom subject) and one of 12 themes (Street Label, Level Up, Hype Drop, Sticker Bomb, Retro Wave, Trading Card, Boarding Pass, Now Playing, Pastel Dream, Blossom, Turbo, Pitch Pro); up to 20 covers per PDF; optional extra line under the name (class, teacher); inkjet-friendly A4 printing.
 - Devices: works in any web browser on iPhone, Android and computers.
 - Pricing: free to design and preview; downloading costs R50 for one child for 4 months, plus R25 per extra child; once-off payment, not a subscription. Once unlocked, parents switch between children, each with their own name, subjects and theme.
 - Payments: processed by Payfast (card, debit card, Instant EFT, Apple Pay, Google Pay).
