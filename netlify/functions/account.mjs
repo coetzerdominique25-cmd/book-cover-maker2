@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { makeToken, readToken, emailKey, json, validEmail, normName } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
+import { sendMail, mailReady } from "./lib/mail.mjs";
 
 // Accounts: email + password. A password is set (or reset) either right after paying
 // (the pass token proves it) or with the email plus a payment reference from a receipt.
@@ -76,6 +77,43 @@ export default async (req) => {
     if (!ok) { await fail(s, ek); return json({ error: "We couldn't match that email and payment reference." }, 401); }
     await s.setJSON("user:" + ek, { ...(u || {}), ...newHash(b.password), updated: new Date().toISOString() });
     await clearFails(s, ek);
+    return json(await viewFor(s, lic));
+  }
+
+  if (act === "forgot") {
+    const email = String(b.email || "").trim();
+    if (!validEmail(email)) return json({ error: "Please enter a valid email address." }, 400);
+    if (!mailReady()) return json({ error: "Email reset isn't available right now. Use your payment reference below instead.", noMail: true }, 503);
+    const ek = emailKey(email);
+    if (await limited(s, ek)) return json(LOCKED, 429);
+    const lic = await s.get("lic:" + ek, { type: "json" });
+    if (lic) {
+      const rt = crypto.randomBytes(24).toString("base64url");
+      const hk = crypto.createHash("sha256").update(rt).digest("hex");
+      await s.setJSON("reset:" + hk, { ek, exp: Date.now() + 60 * 60 * 1000 });
+      await fail(s, ek); // counts towards the rate limit so the inbox can't be flooded
+      const site = (process.env.URL || new URL(req.url).origin).replace(/\/$/, "");
+      const link = `${site}/?reset=${rt}`;
+      try {
+        await sendMail({ to: lic.email, subject: "Reset your School Book Covers password",
+          text: `Hi,\n\nSomeone asked to reset the password for your School Book Covers account.\n\nChoose a new password here (the link works for 1 hour):\n${link}\n\nIf this wasn't you, ignore this email. Your password stays the same.\n\nSchool Book Covers · Velvik (Pty) Ltd`,
+          html: `<div style="font-family:Arial,sans-serif;font-size:15px;color:#14161a;max-width:520px"><h2 style="margin:0 0 12px">Reset your password</h2><p>Someone asked to reset the password for your School Book Covers account.</p><p><a href="${link}" style="display:inline-block;background:#2F55D4;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold">Choose a new password</a></p><p style="color:#5b6270;font-size:13px">The link works for 1 hour. If this wasn't you, ignore this email. Your password stays the same.</p><p style="color:#5b6270;font-size:12px">School Book Covers · Velvik (Pty) Ltd</p></div>` });
+      } catch (e) { console.log("mail error", e && e.message); return json({ error: "We couldn't send the email just now. Please try again, or use your payment reference." }, 502); }
+    }
+    return json({ ok: true, message: "If that email has a pass, a reset link is on its way. Check your inbox (and spam)." });
+  }
+
+  if (act === "reset") {
+    const err = pwError(b.password); if (err) return json({ error: err }, 400);
+    const hk = crypto.createHash("sha256").update(String(b.rt || "")).digest("hex");
+    const r = await s.get("reset:" + hk, { type: "json" });
+    if (!r || r.used || r.exp < Date.now()) return json({ error: "This reset link has expired or was already used. Ask for a new one." }, 400);
+    const lic = await s.get("lic:" + r.ek, { type: "json" });
+    if (!lic) return json({ error: "We couldn't find that account." }, 400);
+    const u = await s.get("user:" + r.ek, { type: "json" });
+    await s.setJSON("user:" + r.ek, { ...(u || {}), ...newHash(b.password), updated: new Date().toISOString() });
+    await s.setJSON("reset:" + hk, { ...r, used: true });
+    await clearFails(s, r.ek);
     return json(await viewFor(s, lic));
   }
 
