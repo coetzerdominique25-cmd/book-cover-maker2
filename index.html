@@ -57,6 +57,11 @@ h1{font-family:var(--display);font-weight:400;font-size:clamp(30px,5vw,46px);lin
 .panel h2{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:700}
 .fields{display:grid;grid-template-columns:1fr 90px;gap:10px}
 .fields .full{grid-column:1/-1}
+.logo-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px dashed var(--line);border-radius:10px;background:var(--bg)}
+.logo-prev{flex:none;width:44px;height:44px;border-radius:8px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);overflow:hidden}
+.logo-prev img{width:100%;height:100%;object-fit:contain}
+.logo-txt{flex:1;min-width:0;font-size:13px}.logo-txt span{color:var(--muted);font-size:12px}.logo-txt small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.logo-row .btn{cursor:pointer;white-space:nowrap}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:600;color:var(--muted)}
 input,select,button{font:inherit;color:var(--ink)}
 input[type=text],input[type=email],input[type=number],select{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 9px;width:100%;min-width:0;font-size:15px}
@@ -301,6 +306,10 @@ canvas{max-width:100%}
         <label class="f">Grade<input type="text" id="grade" maxlength="4" placeholder="e.g. 8"></label>
         <label class="f">School (optional)<input type="text" id="school" maxlength="40" placeholder="e.g. Sunnyvale Primary"></label>
         <label class="f">Year<input type="text" id="year" maxlength="4" inputmode="numeric" placeholder="e.g. 2027"></label>
+        <div class="logo-row full"><span class="logo-prev" id="logoPrev" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/></svg></span>
+          <div class="logo-txt"><b>School logo</b> <span>(optional)</span><small id="logoHint">Adds the school badge to every cover, styled to match the theme.</small></div>
+          <label class="btn sm" for="logoFile" id="logoBtn">Upload logo</label><input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp,image/svg+xml" hidden>
+          <button class="btn sm" id="logoDel" type="button" hidden>Remove</button></div>
       </div>
 
       <h2 style="margin-top:18px">Theme</h2>
@@ -932,6 +941,15 @@ function renderRows(){
   $("add").disabled=t>=MAX;
 }
 $("add").onclick=()=>{if(total()>=MAX)return;const used=new Set(state.covers.map(c=>c.s));const next=P.find(p=>!used.has(p[0]));state.covers.push({s:next?next[0]:"__custom",n:1});renderRows();changed()};
+// school logo upload
+function paintLogoUI(){const has=!!state.logo;$("logoDel").hidden=!has;$("logoBtn").textContent=has?"Change":"Upload logo";$("logoPrev").innerHTML=has?`<img src="${state.logo}" alt="">`:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/></svg>'}
+function useLogo(url){state.logo=url||"";setLogo(state.logo,()=>{paintLogoUI();changed();if(typeof renderThemes==="function")renderThemes()})}
+$("logoFile").onchange=e=>{const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;
+  if(f.size>8*1024*1024){status("That picture is too big. Use one under 8 MB.",true);return}
+  const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const M=360,k=Math.min(1,M/Math.max(im.width||M,im.height||M));const cv=document.createElement("canvas");cv.width=Math.max(1,Math.round((im.width||M)*k));cv.height=Math.max(1,Math.round((im.height||M)*k));cv.getContext("2d").drawImage(im,0,0,cv.width,cv.height);
+      let url=cv.toDataURL("image/png");if(url.length>400000)url=cv.toDataURL("image/jpeg",0.9);useLogo(url);status("School logo added to every cover.")};
+    im.onerror=()=>status("Couldn't read that picture. Try a PNG or JPG.",true);im.src=rd.result};rd.readAsDataURL(f)};
+$("logoDel").onclick=()=>{useLogo("");status("School logo removed.")};
 // colour shuffle: 5 variations, then back to the start
 function shufLabel(){const n=state.shuf||0;$("shuf").textContent=n?`🎨 Shuffle colours · ${n} of 5`:"🎨 Shuffle colours"}
 $("shuf").onclick=()=>{let n=((state.shuf||0)+1)%6;
@@ -1485,6 +1503,21 @@ const THEMES={
   pitch:{name:"Pitch Pro",desc:"Stadium, jersey and ball",draw:themePitch}
 };
 
+// ---- School logo ----
+let LOGO_IMG=null;
+// where the logo badge sits on each theme: centre x, y and diameter (mm), plus badge style
+const LOGO_POS={street:[180,132,28,"ring"],level:[178,45,26,"hex"],hype:[180,38,24,"ring"],sticker:[176,112,30,"sticker"],retro:[182,100,24,"ring"],card:[40,62,24,"ring"],ticket:[176,152,26,"ring"],player:[175,40,24,"ring"],pastel:[184,86,22,"bubble"],blossom:[34,178,24,"bubble"],turbo:[180,100,24,"ring"],pitch:[34,174,22,"shield"]};
+function drawLogo(ctx,tk,A){const [x,y,D,st]=LOGO_POS[tk]||[180,30,26,"ring"];const r=D/2;const img=LOGO_IMG;
+  ctx.save();
+  if(st==="hex"){hexPath(ctx,x,y,r+2.5);ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle="#111";ctx.lineWidth=0.9;ctx.stroke();hexPath(ctx,x,y,r+0.8);ctx.strokeStyle=A;ctx.lineWidth=0.5;ctx.stroke()}
+  else if(st==="sticker"){ctx.translate(x,y);ctx.rotate(-8*Math.PI/180);ctx.translate(-x,-y);ctx.beginPath();ctx.arc(x+0.8,y+1.2,r+3,0,7);ctx.fillStyle="rgba(0,0,0,0.22)";ctx.fill();ctx.beginPath();ctx.arc(x,y,r+3,0,7);ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle="#111";ctx.lineWidth=0.7;ctx.stroke()}
+  else if(st==="bubble"){ctx.beginPath();ctx.arc(x+0.8,y+1,r+2.6,0,7);ctx.fillStyle=tint(A,0.75);ctx.fill();ctx.beginPath();ctx.arc(x,y,r+2.6,0,7);ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle=tint(A,0.35);ctx.lineWidth=0.8;ctx.stroke()}
+  else if(st==="shield"){ctx.beginPath();ctx.moveTo(x-r-2,y-r-2);ctx.lineTo(x+r+2,y-r-2);ctx.lineTo(x+r+2,y+r*0.2);ctx.quadraticCurveTo(x+r+2,y+r+1,x,y+r+4);ctx.quadraticCurveTo(x-r-2,y+r+1,x-r-2,y+r*0.2);ctx.closePath();ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle="#111";ctx.lineWidth=0.9;ctx.stroke()}
+  else{ctx.beginPath();ctx.arc(x,y,r+2.6,0,7);ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle=A;ctx.lineWidth=1;ctx.stroke();ctx.beginPath();ctx.arc(x,y,r+1.2,0,7);ctx.strokeStyle=hexA(A,0.35);ctx.lineWidth=0.35;ctx.stroke()}
+  const k=Math.min(D/img.width,D/img.height);const w=img.width*k,h=img.height*k;
+  ctx.save();if(st!=="shield"&&st!=="hex"){ctx.beginPath();ctx.arc(x,y,r+0.6,0,7);ctx.clip()}ctx.drawImage(img,x-w/2,y-h/2,w,h);ctx.restore();
+  ctx.restore()}
+function setLogo(url,cb){if(!url){LOGO_IMG=null;cb&&cb();return}const im=new Image();im.onload=()=>{LOGO_IMG=im;cb&&cb()};im.onerror=()=>{LOGO_IMG=null;cb&&cb()};im.src=url}
 function sampleMark(ctx){ctx.save();ctx.translate(105,148.5);ctx.rotate(-32*Math.PI/180);ctx.textAlign="center";ctx.textBaseline="middle";
   font(ctx,ANTON,34);spacing(ctx,4);ctx.fillStyle="rgba(17,17,17,0.16)";for(let k=-3;k<=3;k++)ctx.fillText("SAMPLE",(k%2)*40,k*62);ctx.restore();ctx.textBaseline="alphabetic"}
 function drawCover(cv,c,idx,W,themeKey,noMark){
@@ -1498,7 +1531,9 @@ function drawCover(cv,c,idx,W,themeKey,noMark){
     school:(state.school||"").trim().toUpperCase()};
   ctx.fillStyle="#fff";ctx.fillRect(0,0,210,297);ctx.textBaseline="alphabetic";
   d.lines=titleLines(ctx,sp);
-  (THEMES[themeKey||state.theme]||THEMES.street).draw(ctx,d);
+  const tk=THEMES[themeKey||state.theme]?(themeKey||state.theme):"street";
+  THEMES[tk].draw(ctx,d);
+  if(LOGO_IMG)drawLogo(ctx,tk,A);
   if(!isUnlocked()&&!noMark)sampleMark(ctx);
 }
 
@@ -1653,9 +1688,9 @@ window.__bcm=drawCover;
 // ---- Children on the pass ----
 if(!state.profiles)state.profiles={};
 function syncInputs(){["name","grade","school","year"].forEach(k=>$(k).value=state[k]||"")}
-function snap(){return JSON.parse(JSON.stringify({name:state.name,grade:state.grade,school:state.school,year:state.year,theme:state.theme,covers:state.covers}))}
+function snap(){return JSON.parse(JSON.stringify({name:state.name,grade:state.grade,school:state.school,year:state.year,theme:state.theme,covers:state.covers,logo:state.logo||""}))}
 function saveProfile(){if(!isUnlocked())return;const k=normName(state.name);if((LIC.names||[]).includes(k)){state.profiles[k]=snap();save()}}
-function switchChild(k){saveProfile();const p=state.profiles[k];if(p)Object.assign(state,JSON.parse(JSON.stringify(p)));else state.name=k;syncInputs();renderRows();renderThemes();changed();renderKids();status("Now making covers for "+k+".")}
+function switchChild(k){saveProfile();const p=state.profiles[k];if(p)Object.assign(state,JSON.parse(JSON.stringify(p)));else state.name=k;syncInputs();setLogo(state.logo||"",()=>{paintLogoUI();renderPreview();renderThemes()});renderRows();renderThemes();changed();renderKids();status("Now making covers for "+k+".")}
 function addChild(){saveProfile();state.name="";syncInputs();changed();renderKids();$("name").focus();status("Type the next child's name, then set their subjects and theme.")}
 function renderKids(){const bar=$("kidsBar");if(!isUnlocked()){bar.hidden=true;return}
   const names=LIC.names||[];const cur=normName(state.name);const left=LIC.kids-names.length;
@@ -1821,7 +1856,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")$("lightbox").hidden
 function renderHero(){const L=[[{s:"Mathematics",n:1},"street"],[{s:"Natural Sciences",n:1},"sticker"],[{s:"Geography",n:1},"retro"]];
   const dpr=Math.min(2,window.devicePixelRatio||1);L.forEach(([c,t],i)=>{const cv=$("hc"+i);if(cv)drawCover(cv,c,i,Math.round(240*dpr),t,true)})}
 (function(){const q=new URLSearchParams(location.search);const rt=q.get("reset");if(rt){history.replaceState(null,"",location.pathname);resetToken=rt;if(LIC&&LIC.token){savePass(null)}acctView="newpw";setTimeout(()=>openAcct(),300)}})();
-renderRows();shufLabel();
+renderRows();shufLabel();paintLogoUI();if(state.logo)setLogo(state.logo,()=>{renderPreview();renderThemes();renderHero&&0});
 const ready=document.fonts?Promise.all(["400 20px Anton","700 20px 'JetBrains Mono'","700 20px 'Space Grotesk'","italic 600 20px Barlow","700 20px Fredoka"].map(f=>document.fonts.load(f))).catch(()=>{}):Promise.resolve();
 renderPreview();renderThemes();
 ready.then(()=>{renderPreview();renderThemes();renderHero();renderKids();scheduleBuild()});
