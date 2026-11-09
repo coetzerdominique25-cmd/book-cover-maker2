@@ -10,3 +10,5 @@
 - Payments: processed by Payfast (card, debit card, Instant EFT, Apple Pay, Google Pay).
 - Provider: Velvik (Pty) Ltd, South Africa. Contact: coetzerdominique@gmail.com
 - Refunds: considered case by case at the provider's discretion; email the contact address with the purchase email.
+
+- Accounts: sign in with email and password on any device. Forgot password: reset with the payment reference from the Payfast receipt or invoice. Account shows payments, downloadable invoices and download history.

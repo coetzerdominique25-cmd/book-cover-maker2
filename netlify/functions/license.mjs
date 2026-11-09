@@ -1,7 +1,8 @@
 import { makeToken, readToken, emailKey, normName, json, validEmail } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
 
-const view = (lic) => ({ status: lic.exp > Date.now() ? "active" : "expired", token: makeToken(lic), kids: lic.kids, exp: lic.exp, names: lic.names || [], email: lic.email });
+const view = (lic, u) => ({ status: lic.exp > Date.now() ? "active" : "expired", token: makeToken(lic), kids: lic.kids, exp: lic.exp, names: lic.names || [], email: lic.email, hasPassword: !!(u && u.hash) });
+const userOf = (s, lic) => s.get("user:" + emailKey(lic.email), { type: "json" });
 
 export default async (req) => {
   const s = store();
@@ -14,13 +15,13 @@ export default async (req) => {
       if (!o) return json({ status: "unknown" }, 404);
       if (o.status !== "paid") return json({ status: o.status });
       const lic = await s.get("lic:" + emailKey(o.email), { type: "json" });
-      return lic ? json(view(lic)) : json({ status: "pending" });
+      return lic ? json(view(lic, await userOf(s, lic))) : json({ status: "pending" });
     }
     if (email) {
       if (!validEmail(email)) return json({ status: "invalid" }, 400);
       const lic = await s.get("lic:" + emailKey(email), { type: "json" });
-      if (!lic || lic.exp < Date.now()) return json({ status: "none" }, 404);
-      return json(view(lic));
+      // No pass details by email alone: the person has to sign in with their password.
+      return json({ status: lic ? "exists" : "none" }, lic ? 200 : 404);
     }
     return json({ error: "Missing order or email" }, 400);
   }
@@ -38,7 +39,7 @@ export default async (req) => {
       if (names.length >= lic.kids) return json({ status: "full", kids: lic.kids, names }, 409);
       names.push(name); lic.names = names; await s.setJSON(key, lic);
     }
-    return json(view(lic));
+    return json(view(lic, await userOf(s, lic)));
   }
   return json({ error: "Method not allowed" }, 405);
 };
