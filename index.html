@@ -68,6 +68,7 @@ canvas{max-width:100%}
 .after{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.after a.btn{text-decoration:none;color:var(--ink)}
 .warn{color:var(--warn);border-top:1px solid var(--line);padding-top:8px}
 .btn.big{font-size:17px;padding:13px 22px}
+.ioshint{color:var(--muted);font-weight:400}
 .btn.wa{background:#1F8F4E;border-color:#1F8F4E;color:#fff;text-decoration:none;font-size:14px}
 .steps{list-style:none;counter-reset:st;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:0;margin:0 0 18px}
 .steps li{counter-increment:st;display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
@@ -114,7 +115,7 @@ canvas{max-width:100%}
   <ol class="steps">
     <li><b>Type your child's name and grade</b></li>
     <li><b>Pick the subjects</b> (and a look you like)</li>
-    <li><b>Tap Download PDF</b> and print on A4</li>
+    <li><b>Tap Download PDF</b> and print on A4 <span class="ioshint">(iPhone: choose “Save to Files”)</span></li>
   </ol>
 
   <div class="layout">
@@ -1068,23 +1069,30 @@ function fileName(){return ((state.name||"").trim()||"Book").replace(/[^\w\- ]+/
 let pdfReady=null,gen=0,buildTimer=null,lastUrl=null;
 function setBtn(){const b=$("pdf");const n=pages().length;
   if(!n){b.disabled=true;b.textContent="Add a subject first";return}
-  if(pdfReady){b.disabled=false;b.textContent=`Download PDF · ${n} cover${n>1?"s":""}`}else{b.disabled=true;b.textContent="Preparing PDF…"}}
+  if(pdfReady){b.disabled=false;b.textContent=(isIOS?"Save PDF":"Download PDF")+` · ${n} cover${n>1?"s":""}`}else{b.disabled=true;b.textContent="Preparing PDF…"}}
 async function build(){
   const my=++gen;pdfReady=null;setBtn();const list=pages();if(!list.length)return;
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:"mm",format:"a4",compress:true});const cv=document.createElement("canvas");
   for(let i=0;i<list.length;i++){await new Promise(r=>setTimeout(r,0));if(my!==gen)return;
     drawCover(cv,list[i],i,1654);if(i)doc.addPage("a4","p");doc.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",0,0,210,297,undefined,"FAST")}
   if(my!==gen)return;const blob=doc.output("blob");
-  if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=URL.createObjectURL(blob);
+  const old=lastUrl;lastUrl=URL.createObjectURL(blob);if(old)setTimeout(()=>URL.revokeObjectURL(old),60000);
   pdfReady={blob,name:fileName(),url:lastUrl};setBtn();
 }
 function scheduleBuild(){clearTimeout(buildTimer);gen++;pdfReady=null;setBtn();buildTimer=setTimeout(()=>build().catch(()=>{status("Couldn't build the PDF here.",true);$("asimg").hidden=false}),900)}
 function anchorDownload(){const a=document.createElement("a");a.href=pdfReady.url;a.download=pdfReady.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 $("pdf").onclick=()=>{
   if(!pdfReady)return;$("asimg").hidden=false;
+  if(isIOS){
+    const f=new File([pdfReady.blob],pdfReady.name,{type:"application/pdf"});
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      navigator.share({files:[f]}).then(()=>status("Done. Find it in the Files app.")).catch(e=>{if(e&&e.name==="AbortError")status("Not saved. Tap Download PDF to try again.");else{status("Use the pictures link below instead.",true)}});
+      status("Tap “Save to Files”, then “Save”.");return}
+    status("This browser can't save files. Open the link in Safari, or use the pictures link below.",true);return;
+  }
   if(window.navigator.msSaveOrOpenBlob){window.navigator.msSaveOrOpenBlob(pdfReady.blob,pdfReady.name);return}
   anchorDownload();
-  status(isIOS?"Tap “Download” if Safari asks. The PDF goes to Files › Downloads.":"Saved to your Downloads folder as “"+pdfReady.name+"”.");
+  status("Saved to your Downloads folder as “"+pdfReady.name+"”.");
 };
 $("asimg").onclick=async()=>{
   const btn=$("asimg");btn.disabled=true;const box=$("galimgs");box.innerHTML="";const list=pages();const cv=document.createElement("canvas");
