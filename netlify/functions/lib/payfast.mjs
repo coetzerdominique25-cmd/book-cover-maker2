@@ -15,7 +15,7 @@ export function creds() {
   };
 }
 
-export const MIN_KIDS = 1, MAX_KIDS = 4, MONTHS = 4; // max 4 children per account
+export const MIN_KIDS = 1, MAX_KIDS = 3, MONTHS = 4; // max 3 children per account
 // R50 for the first child, R25 for each extra child.
 export const price = (kids) => 50 + 25 * (kids - 1);
 
