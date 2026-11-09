@@ -11,13 +11,13 @@ Parents unlock downloads for 4 months via Payfast: R50 for 2 children, R25 per e
 
 | Variable | Value |
 |---|---|
-| `PAYFAST_TEST` | set to `1` to use Payfast's sandbox; leave unset for live payments |
+| `PAYFAST_MODE` | `sandbox` while testing, `live` when ready |
 | `PAYFAST_MERCHANT_ID` | from the Payfast dashboard (live only) |
 | `PAYFAST_MERCHANT_KEY` | from the Payfast dashboard (live only) |
 | `PAYFAST_PASSPHRASE` | set under Payfast → Settings → Developer settings (live only) |
 | `TOKEN_SECRET` | any long random text; keep it private and never change it |
 
-Live mode uses merchant 15052267 unless `PAYFAST_MERCHANT_ID`/`PAYFAST_MERCHANT_KEY` are set. If a passphrase is set in Payfast, `PAYFAST_PASSPHRASE` must match it exactly.
+In sandbox mode the site uses Payfast's public test merchant, so no real money moves.
 Passes are stored in Netlify Blobs (no database to set up).
 
 ## How payment works

@@ -1,14 +1,12 @@
 import crypto from "node:crypto";
 
-// Live by default. Set PAYFAST_TEST=1 in Netlify to use Payfast's sandbox instead.
-export const MODE = process.env.PAYFAST_TEST === "1" ? "sandbox" : "live";
+export const MODE = (process.env.PAYFAST_MODE || "sandbox").toLowerCase() === "live" ? "live" : "sandbox";
 export const HOST = MODE === "live" ? "https://www.payfast.co.za" : "https://sandbox.payfast.co.za";
 
 // Sandbox falls back to Payfast's public test merchant so the flow works before go-live.
 export function creds() {
   if (MODE === "live") {
-    // Velvik / Dominique's Payfast merchant (ID and key are public in every Payfast form; the passphrase stays in Netlify).
-    return { id: process.env.PAYFAST_MERCHANT_ID || "15052267", key: process.env.PAYFAST_MERCHANT_KEY || "gbbaxrebt3c2m", pass: process.env.PAYFAST_PASSPHRASE || "" };
+    return { id: process.env.PAYFAST_MERCHANT_ID, key: process.env.PAYFAST_MERCHANT_KEY, pass: process.env.PAYFAST_PASSPHRASE || "" };
   }
   return {
     id: process.env.PAYFAST_MERCHANT_ID || "10000100",
