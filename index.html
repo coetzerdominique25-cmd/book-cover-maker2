@@ -310,6 +310,7 @@ canvas{max-width:100%}
       <div class="covers" id="covers"></div>
       <div class="bar">
         <button class="btn" id="add" type="button">+ Add subject</button>
+        <button class="btn" id="shuf" type="button" title="Try different colour mixes. Click again for the next one; after 5 it goes back to the start.">🎨 Shuffle colours</button>
         <span class="count" id="count"></span>
       </div>
       <div class="bar">
@@ -931,7 +932,17 @@ function renderRows(){
   $("add").disabled=t>=MAX;
 }
 $("add").onclick=()=>{if(total()>=MAX)return;const used=new Set(state.covers.map(c=>c.s));const next=P.find(p=>!used.has(p[0]));state.covers.push({s:next?next[0]:"__custom",n:1});renderRows();changed()};
-$("reset").onclick=()=>{state=JSON.parse(JSON.stringify(DEFAULT));["name","grade","school","year"].forEach(k=>$(k).value=state[k]);renderRows();changed()};
+// colour shuffle: 5 variations, then back to the start
+function shufLabel(){const n=state.shuf||0;$("shuf").textContent=n?`🎨 Shuffle colours · ${n} of 5`:"🎨 Shuffle colours"}
+$("shuf").onclick=()=>{let n=((state.shuf||0)+1)%6;
+  if(n===1)state.shufBase=state.covers.map(c=>c.col||null);
+  if(n===0){(state.shufBase||[]).forEach((col,i)=>{const c=state.covers[i];if(!c)return;if(col)c.col=col;else delete c.col});state.covers.slice((state.shufBase||[]).length).forEach(c=>delete c.col);delete state.shufBase}
+  else{const keys=Object.keys(COLOURS).filter(k=>k!=="slate");const rnd=seeded(n*7919+state.covers.length);
+    const pool=keys.slice();for(let i=pool.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+    state.covers.forEach((c,i)=>{c.col=pool[i%pool.length]})}
+  state.shuf=n;renderRows();changed();shufLabel();
+  status(n?`Colour mix ${n} of 5. Click again to try another.`:"Back to the original colours.")};
+$("reset").onclick=()=>{state=JSON.parse(JSON.stringify(DEFAULT));setTimeout(shufLabel,0);["name","grade","school","year"].forEach(k=>$(k).value=state[k]);renderRows();changed()};
 
 // ---------- drawing (all units in mm on a 210 x 297 page) ----------
 function hexA(h,a){const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`}
@@ -1810,7 +1821,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")$("lightbox").hidden
 function renderHero(){const L=[[{s:"Mathematics",n:1},"street"],[{s:"Natural Sciences",n:1},"sticker"],[{s:"Geography",n:1},"retro"]];
   const dpr=Math.min(2,window.devicePixelRatio||1);L.forEach(([c,t],i)=>{const cv=$("hc"+i);if(cv)drawCover(cv,c,i,Math.round(240*dpr),t,true)})}
 (function(){const q=new URLSearchParams(location.search);const rt=q.get("reset");if(rt){history.replaceState(null,"",location.pathname);resetToken=rt;if(LIC&&LIC.token){savePass(null)}acctView="newpw";setTimeout(()=>openAcct(),300)}})();
-renderRows();
+renderRows();shufLabel();
 const ready=document.fonts?Promise.all(["400 20px Anton","700 20px 'JetBrains Mono'","700 20px 'Space Grotesk'","italic 600 20px Barlow","700 20px Fredoka"].map(f=>document.fonts.load(f))).catch(()=>{}):Promise.resolve();
 renderPreview();renderThemes();
 ready.then(()=>{renderPreview();renderThemes();renderHero();renderKids();scheduleBuild()});
