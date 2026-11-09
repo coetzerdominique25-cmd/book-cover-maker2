@@ -16,6 +16,7 @@
 <meta property="og:description" content="Type your child's name, grade and subjects, choose a theme and print matching A4 book covers at home.">
 <meta property="og:url" content="https://schoolbookcover.co.za/">
 <meta property="og:image" content="https://schoolbookcover.co.za/og-image.png">
+<meta property="og:image:alt" content="School Book Covers: printable A4 book covers with your child's name, from as little as R50">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_ZA">
@@ -244,6 +245,7 @@ canvas{max-width:100%}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ioshint{color:var(--muted);font-weight:400}
 .price-pill b{color:var(--accent,#2F55D4)}
+.share-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:var(--muted)}.share-row a,.share-row button{font:inherit;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer}
 .sch-pill{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 12px;border-radius:999px;border:1px dashed var(--accent);color:var(--ink);text-decoration:none;font-size:13.5px;background:rgba(47,85,212,.06)}
 .sch-pill:hover{background:rgba(47,85,212,.12)}
 .sch-pill b{color:var(--accent)}
@@ -316,6 +318,8 @@ canvas{max-width:100%}
     <ul class="ticks"><li>26 South African subjects</li><li>12 themes</li><li>Prints on any home printer</li><li>Secure Payfast checkout</li></ul>
     <a class="sch-pill" href="#schools"><span aria-hidden="true">🏫</span> <b>Schools:</b> bulk pricing for a whole grade or school <span aria-hidden="true">→</span></a>
     <a class="share-hero" id="wa" href="#" target="_blank" rel="noopener"><span class="share-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 11.5h7M12 8v7"/></svg></span><span><b>Know another parent?</b><small>Share with your class WhatsApp group</small></span><span class="share-go" aria-hidden="true">→</span></a>
+    <div class="share-row" aria-label="Share this site"><span>Or share on</span>
+      <a id="shFb" href="#" target="_blank" rel="noopener">Facebook</a><a id="shPin" href="#" target="_blank" rel="noopener">Pinterest</a><a id="shX" href="#" target="_blank" rel="noopener">X</a><a id="shMail" href="#">Email</a><button type="button" id="shMore">More…</button></div>
   </div>
   <div class="hero-art" aria-hidden="true"><canvas id="hc0"></canvas><canvas id="hc1"></canvas><canvas id="hc2"></canvas></div>
 </div></header>
@@ -1359,6 +1363,10 @@ if(inFrame||iosInApp){$("framewarn").hidden=false;$("framewarn").textContent="Th
 $("nojs").hidden=true;
 const shareUrl="https://schoolbookcover.co.za/";
 $("wa").href="https://wa.me/?text="+encodeURIComponent("Make your child's school book covers here, then download and print on A4: "+shareUrl);
+(function(){const u=encodeURIComponent(shareUrl),t=encodeURIComponent("Printable school book covers with your child's name, from R50");
+  $("shFb").href="https://www.facebook.com/sharer/sharer.php?u="+u;$("shPin").href="https://www.pinterest.com/pin/create/button/?url="+u+"&media="+encodeURIComponent(shareUrl+"og-image.png")+"&description="+t;
+  $("shX").href="https://twitter.com/intent/tweet?url="+u+"&text="+t;$("shMail").href="mailto:?subject="+encodeURIComponent("School book covers")+"&body="+t+"%0A"+u;
+  $("shMore").onclick=async()=>{if(navigator.share){try{await navigator.share({title:"School Book Covers",text:"Printable school book covers with your child's name",url:shareUrl})}catch(e){}}else{try{await navigator.clipboard.writeText(shareUrl);$("shMore").textContent="Link copied"}catch(e){prompt("Copy this link",shareUrl)}}}})();
 window.__bcm=drawCover;
 // ---- Children on the pass ----
 if(!state.profiles)state.profiles={};
