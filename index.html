@@ -246,6 +246,9 @@ canvas{max-width:100%}
 .ioshint{color:var(--muted);font-weight:400}
 .price-pill b{color:var(--accent,#2F55D4)}
 .share-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:var(--muted)}.share-row a,.share-row button{font:inherit;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer}
+.thanks-sheet{text-align:center}.thanks-sheet .lead{margin:6px 0 14px}.th-emoji{font-size:44px;line-height:1}
+.th-wa{background:#1F8F4E;border-color:#1F8F4E;color:#fff;text-decoration:none;gap:8px;display:flex}
+.th-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 6px}.th-row .btn{justify-content:center;text-decoration:none;color:var(--ink)}
 .sch-pill{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:6px 12px;border-radius:999px;border:1px dashed var(--accent);color:var(--ink);text-decoration:none;font-size:13.5px;background:rgba(47,85,212,.06)}
 .sch-pill:hover{background:rgba(47,85,212,.12)}
 .sch-pill b{color:var(--accent)}
@@ -451,6 +454,26 @@ canvas{max-width:100%}
     <h2 id="acctTitle">My pass</h2>
     <div id="acctBody"></div>
     <div class="pwmsg" id="acctMsg" aria-live="polite"></div>
+  </div>
+</div>
+<div class="modal" id="thanks" hidden role="dialog" aria-modal="true" aria-labelledby="thTitle">
+  <div class="sheet thanks-sheet">
+    <button class="x" id="thClose" type="button" aria-label="Close">×</button>
+    <div class="th-emoji" aria-hidden="true">🎉</div>
+    <h2 id="thTitle">Your covers are ready!</h2>
+    <p class="lead">Liked how they turned out? Please share with other parents. It really helps a small South African business.</p>
+    <a class="btn big full th-wa" id="thWa" href="#" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg> Share on WhatsApp</a>
+    <div class="th-row">
+      <a class="btn" id="thFb" href="#" target="_blank" rel="noopener">Facebook</a>
+      <button class="btn" id="thIg" type="button">Instagram</button>
+      <button class="btn" id="thTt" type="button">TikTok</button>
+      <a class="btn" id="thPin" href="#" target="_blank" rel="noopener">Pinterest</a>
+      <a class="btn" id="thX" href="#" target="_blank" rel="noopener">X</a>
+      <a class="btn" id="thMail" href="#">Email</a>
+    </div>
+    <button class="btn full" id="thMore" type="button">Copy link</button>
+    <p class="fine center" id="thHint">On Instagram and TikTok, paste the link in your story, bio or a comment.</p>
+    <button class="linkbtn center" id="thLater" type="button">Maybe later</button>
   </div>
 </div>
 <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Cover preview"><button type="button" id="lbClose" aria-label="Close preview">×</button><canvas id="lbCanvas"></canvas></div>
@@ -1295,10 +1318,10 @@ $("pdf").onclick=()=>{
   if(mode!=="ready"||!pdfReady)return;$("asimg").hidden=false;
   if(isIOS){const f=new File([pdfReady.blob],pdfReady.name,{type:"application/pdf"});
     if(navigator.canShare&&navigator.canShare({files:[f]})){
-      navigator.share({files:[f]}).then(()=>{logDownload();status("Done. Find it in the Files app.")}).catch(e=>{if(e&&e.name==="AbortError")status("Not saved. Tap Save PDF to try again.");else status("Use the pictures link below instead.",true)});
+      navigator.share({files:[f]}).then(()=>{logDownload();status("Done. Find it in the Files app.");askShare()}).catch(e=>{if(e&&e.name==="AbortError")status("Not saved. Tap Save PDF to try again.");else status("Use the pictures link below instead.",true)});
       status("Tap “Save to Files”, then “Save”.");return}
     status("This browser can't save files. Open the link in Safari, or use the pictures link below.",true);return}
-  logDownload();anchorDownload();status("Saved to your Downloads folder as “"+pdfReady.name+"”.");
+  logDownload();anchorDownload();status("Saved to your Downloads folder as “"+pdfReady.name+"”.");askShare();
 };
 // paywall modal
 let kids=1;const price=k=>50+25*(k-1);
@@ -1545,6 +1568,23 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")$("lightbox").hidden
 function renderHero(){const L=[[{s:"Mathematics",n:1},"street"],[{s:"Natural Sciences",n:1},"sticker"],[{s:"Geography",n:1},"retro"]];
   const dpr=Math.min(2,window.devicePixelRatio||1);L.forEach(([c,t],i)=>{const cv=$("hc"+i);if(cv)drawCover(cv,c,i,Math.round(240*dpr),t,true)})}
 (function(){const q=new URLSearchParams(location.search);const rt=q.get("reset");if(rt){history.replaceState(null,"",location.pathname);resetToken=rt;if(LIC&&LIC.token){savePass(null)}acctView="newpw";setTimeout(()=>openAcct(),300)}})();
+// "please share" pop-up after a download (at most once a day)
+function askShare(){let last=0;try{last=+localStorage.getItem("bcm-asked")||0}catch(e){}if(Date.now()-last<864e5)return;try{localStorage.setItem("bcm-asked",String(Date.now()))}catch(e){}
+  const t="I made my child's school book covers here in minutes, printed at home. From R50: ";
+  $("thWa").href="https://wa.me/?text="+encodeURIComponent(t+shareUrl);$("thFb").href="https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(shareUrl);
+  $("thPin").href="https://www.pinterest.com/pin/create/button/?url="+encodeURIComponent(shareUrl)+"&media="+encodeURIComponent(shareUrl+"og-image.png")+"&description="+encodeURIComponent("Printable school book covers with your child's name");
+  $("thX").href="https://twitter.com/intent/tweet?url="+encodeURIComponent(shareUrl)+"&text="+encodeURIComponent("Printable school book covers with your child's name, from R50");
+  $("thMail").href="mailto:?subject="+encodeURIComponent("School book covers")+"&body="+encodeURIComponent(t+shareUrl);
+  setTimeout(()=>{$("thanks").hidden=false},1200)}
+(function(){const close=()=>{$("thanks").hidden=true};$("thClose").onclick=close;$("thLater").onclick=close;$("thanks").addEventListener("click",e=>{if(e.target.id==="thanks")close()});
+  ["thWa","thFb","thPin","thX","thMail"].forEach(id=>$(id).addEventListener("click",()=>setTimeout(close,300)));
+  const msg="I made my child's school book covers here in minutes, printed at home. From R50: "+shareUrl;
+  const copy=async(btn,label)=>{try{await navigator.clipboard.writeText(msg);btn.textContent=label||"Link copied ✓";return true}catch(e){prompt("Copy this link",shareUrl);return false}};
+  // Instagram and TikTok have no web share link: use the phone's share menu, or copy the message and open the app's site
+  const social=async(btn,site)=>{if(navigator.share&&/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){try{await navigator.share({title:"School Book Covers",text:msg,url:shareUrl});close()}catch(e){}return}
+    await copy(btn,"Copied ✓ Paste it");$("thHint").textContent="The message and link are copied. Paste them in your "+(site==="tiktok"?"TikTok":"Instagram")+" story, bio or a comment.";window.open(site==="tiktok"?"https://www.tiktok.com/":"https://www.instagram.com/","_blank","noopener")};
+  $("thIg").onclick=()=>social($("thIg"),"instagram");$("thTt").onclick=()=>social($("thTt"),"tiktok");
+  $("thMore").onclick=()=>copy($("thMore"));})();
 // mobile quick-action bar: mirrors the main button while the form is on screen
 (function(){const bar=$("mbar"),go=$("mGo"),pdf=$("pdf");if(!bar)return;document.body.appendChild(bar);
   const sync=()=>{go.textContent=pdf.textContent.replace("Unlock to download","Unlock");go.disabled=pdf.disabled};
