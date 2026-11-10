@@ -426,6 +426,7 @@ canvas{max-width:100%}
         <button class="btn primary big full" type="submit" id="sqGo">Send enquiry</button>
         <p class="fine center" id="sqNote">We usually reply within one working day.</p>
       </form>
+      <div class="sch-form" id="sqDone" hidden><b>Thank you!</b><p id="sqDoneMsg" style="margin:6px 0 0"></p><button class="btn" type="button" id="sqAgain">Send another enquiry</button></div>
     </div>
     <h2 id="faq">Frequently asked questions</h2>
       <details class="faq"><summary>What is School Book Covers?</summary><p>School Book Covers is an online tool for South African parents and learners that creates matching, printable A4 school book covers. You type your child's name, grade and subjects, pick a theme, and download one PDF with all the covers ready to print at home.</p></details>
@@ -478,6 +479,7 @@ canvas{max-width:100%}
       <button class="btn primary big full" type="submit" id="ctGo">Send message</button>
       <p class="fine center" id="ctNote">We usually reply within one working day.</p>
     </form>
+    <div id="ctDone" hidden><p><b>Thank you!</b></p><p id="ctDoneMsg"></p><button class="btn" type="button" id="ctAgain">Send another message</button></div>
   </div>
 </div>
 <div class="modal" id="lockM" hidden role="dialog" aria-modal="true" aria-labelledby="lmTitle">
@@ -678,7 +680,7 @@ $("schForm").onsubmit=async e=>{e.preventDefault();const f=$("schForm"),v=id=>$(
   btn.disabled=true;btn.textContent="Sending…";note.style.color="";
   try{const r=await fetch("/",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams(new FormData(f)).toString()});
     if(!r.ok)throw new Error(r.status);
-    f.innerHTML='<b>Thank you!</b><p style="margin:6px 0 0">Your enquiry has been sent. We\'ll reply to <b>'+esc(v("sqEmail")||"")+'</b> within one working day.</p>';}
+    $("sqDoneMsg").innerHTML="Your enquiry has been sent. We'll reply to <b>"+esc(v("sqEmail"))+"</b> within one working day.";f.hidden=true;$("sqDone").hidden=false;btn.disabled=false;btn.textContent="Send enquiry";f.reset()}
   catch(err){btn.disabled=false;btn.textContent="Send enquiry";
     const body=`School: ${v("sqSchool")}\nContact: ${v("sqName")}\nEmail: ${v("sqEmail")}\nLearners: ${v("sqCount")||"-"}\n\n${v("sqMsg")}\n`;
     note.textContent="Couldn't send just now. Please check your connection and try again.";note.style.color="var(--warn)"}};
@@ -691,17 +693,19 @@ function useTheme(){const L=learner(),nm=normName(state.name),tn=(THEMES[state.t
 function themeLimit(){const L=learner(),nm=normName(state.name);const names=(L.themes||[]).map(k=>esc((THEMES[k]||{}).name||k)).join(" and ");
   const left=LIC.kids-(LIC.names||[]).length;const how=left>0?"Use a free place on your pass (no payment)":roomOf()>0?"Add a set for R25":"Start a new pack for R50";
   lockAsk("Another theme needs another set",`<p><b>${esc(nm)}</b> has used both themes in their set: <b>${names}</b>. You can switch back to either of those for free.</p><p>For more themes, add another set for ${esc(nm)}. It unlocks <b>2 more themes</b>.</p>`,()=>{if(left>0)claim(true);else if(roomOf()>0)openAcct(true);else newPack()});$("lmOk").textContent=how}
+$("sqAgain").onclick=()=>{$("schForm").hidden=false;$("sqDone").hidden=true};
 // contact form (footer "Contact us", #contact links)
-function openContact(topic){const m=$("contactM");if(!$("ctForm")){m.querySelector(".sheet").insertAdjacentHTML("beforeend","")}
+function resetContact(){$("ctForm").hidden=false;$("ctDone").hidden=true;$("ctNote").textContent="We usually reply within one working day.";$("ctNote").style.color=""}
+function openContact(topic){const m=$("contactM");resetContact();
   if(topic&&$("ctTopic"))$("ctTopic").value=topic;if(LIC&&LIC.email&&$("ctEmail")&&!$("ctEmail").value)$("ctEmail").value=LIC.email;m.hidden=false;setTimeout(()=>{const n=$("ctName");n&&n.focus()},50)}
 document.addEventListener("click",e=>{const a=e.target.closest('a[href="#contact"]');if(!a)return;e.preventDefault();openContact(a.dataset.topic)});
-$("ctClose").onclick=()=>{$("contactM").hidden=true};$("contactM").addEventListener("click",e=>{if(e.target.id==="contactM")$("contactM").hidden=true});
+$("ctClose").onclick=()=>{$("contactM").hidden=true};$("ctAgain").onclick=()=>{resetContact();$("ctName").focus()};$("contactM").addEventListener("click",e=>{if(e.target.id==="contactM")$("contactM").hidden=true});
 if(location.hash==="#contact")setTimeout(()=>openContact(),400);
 $("ctForm").onsubmit=async e=>{e.preventDefault();const f=$("ctForm"),v=id=>$(id).value.trim(),note=$("ctNote"),btn=$("ctGo");
   if(!v("ctName")||!okEmail(v("ctEmail"))||!v("ctMsg")){note.textContent="Please fill in your name, a valid email and a message.";note.style.color="var(--warn)";return}
   btn.disabled=true;btn.textContent="Sending…";note.style.color="";
   try{const r=await fetch("/",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams(new FormData(f)).toString()});if(!r.ok)throw new Error(r.status);
-    const em=v("ctEmail");f.innerHTML='<b>Thank you!</b><p style="margin:6px 0 0">Your message has been sent. We\'ll reply to <b>'+esc(em)+'</b> within one working day.</p>'}
+    $("ctDoneMsg").innerHTML="Your message has been sent. We'll reply to <b>"+esc(v("ctEmail"))+"</b> within one working day.";f.hidden=true;$("ctDone").hidden=false;btn.disabled=false;btn.textContent="Send message";f.reset()}
   catch(err){btn.disabled=false;btn.textContent="Send message";note.textContent="Couldn't send just now. Please check your connection and try again.";note.style.color="var(--warn)"}};
 // colour shuffle: 5 variations, then back to the start
 function shufLabel(){const n=state.shuf||0;$("shuf").textContent=n?`🎨 Shuffle colours · ${n} of 5`:"🎨 Shuffle colours"}
