@@ -245,6 +245,8 @@ canvas{max-width:100%}
 .spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:sp 1s linear infinite;align-self:center}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ioshint{color:var(--muted);font-weight:400}
+.price-pill{flex-direction:column;line-height:1.2}.price-pill .pill-sub{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.ticks li.tick-fast::before{content:"⚡"!important;color:inherit!important}
 .price-pill b{color:var(--accent,#2F55D4)}
 .share-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:var(--muted)}.share-row a,.share-row button{font:inherit;font-size:13px;font-weight:700;padding:6px 13px;border-radius:999px;border:0;color:#fff;text-decoration:none;cursor:pointer;transition:transform .12s,box-shadow .12s;box-shadow:0 2px 6px rgba(0,0,0,.12)}
 .share-row a:hover,.share-row button:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.18)}
@@ -334,8 +336,8 @@ canvas{max-width:100%}
     <p class="eyebrow">DIY printable school book covers</p>
     <h1>School book covers, sorted in minutes.</h1>
     <p class="lede">Type your child's name, pick their subjects and a look they'll love. Download one PDF with every cover and print it at home.</p>
-    <div class="hero-cta"><a class="btn primary big" href="#maker">Start designing, it's free</a><a class="btn big ghost price-pill" href="#pricing">From as little as <b>R50</b></a></div>
-    <ul class="ticks"><li>26 South African subjects</li><li>12 themes</li><li>Prints on any home printer</li><li>Secure Payfast checkout</li></ul>
+    <div class="hero-cta"><a class="btn primary big" href="#maker">Start designing, it's free</a><a class="btn big ghost price-pill" href="#pricing">From as little as <b>R50</b><small class="pill-sub">⚡ Instant download</small></a></div>
+    <ul class="ticks"><li>26 South African subjects</li><li>12 themes</li><li>Prints on any home printer</li><li>Secure Payfast checkout</li><li class="tick-fast">Instant download after payment</li></ul>
     <a class="sch-pill" href="#schools"><span aria-hidden="true">🏫</span> <b>Schools:</b> bulk pricing for a whole grade or school <span aria-hidden="true">→</span></a>
     <a class="share-hero" id="wa" href="#" target="_blank" rel="noopener"><span class="share-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.3 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/><path d="M8.5 11.5h7M12 8v7"/></svg></span><span><b>Know another parent?</b><small>Share with your class WhatsApp group</small></span><span class="share-go" aria-hidden="true">→</span></a>
     <div class="share-row" aria-label="Share this site"><span>Share with friends:</span>
