@@ -258,6 +258,9 @@ canvas{max-width:100%}
 .rules li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.4;color:var(--ink)}.rules li span{font-size:16px;line-height:1.2;flex:none}
 .promo{margin-top:10px;border:1px dashed var(--accent);border-radius:10px;padding:8px 12px;background:rgba(47,85,212,.05)}.promo summary{cursor:pointer;font-weight:700;color:var(--accent)}
 .promo-row{display:flex;gap:8px;margin-top:8px}.promo-row input{flex:1;text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.priv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0}
+.priv-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}.priv-card b{display:block;font-size:15px;margin-bottom:4px}.priv-card p{margin:0;font-size:14px;color:var(--muted);line-height:1.5}
+.privacy{background:linear-gradient(180deg,rgba(46,158,68,.05),transparent)}.priv-list{margin:8px 0 0;padding-left:18px;font-size:14px;line-height:1.55}.priv-list li{margin:6px 0}
 .lock-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:rgba(47,85,212,.07);border:1px solid rgba(47,85,212,.25);font-size:13px;line-height:1.45}
 .fields input[readonly]{background:var(--bg);color:var(--muted);cursor:not-allowed}
 .theme .tbadge{position:absolute;top:4px;right:4px;font-size:10px;font-weight:800;padding:2px 6px;border-radius:999px;background:#1F8F4E;color:#fff}
@@ -456,14 +459,33 @@ canvas{max-width:100%}
   <p class="fine">Examples by subject, grade and theme.</p>
   <ul class="links-row"><li><a href="/covers/">All book covers</a></li><li><a href="/covers/maths-book-covers/">Maths</a></li><li><a href="/covers/english-book-covers/">English</a></li><li><a href="/covers/afrikaans-book-covers/">Afrikaans</a></li><li><a href="/covers/natural-sciences-book-covers/">Natural Sciences</a></li><li><a href="/covers/grade-r-3-book-covers/">Grade R–3</a></li><li><a href="/covers/grade-4-6-book-covers/">Grade 4–6</a></li><li><a href="/covers/grade-7-9-book-covers/">Grade 7–9</a></li><li><a href="/covers/grade-10-12-book-covers/">Grade 10–12</a></li><li><a href="/covers/soccer-book-covers/">Soccer</a></li><li><a href="/covers/racing-car-book-covers/">Racing cars</a></li><li><a href="/covers/flower-book-covers/">Flowers</a></li><li><a href="/covers/pastel-rainbow-book-covers/">Rainbow</a></li><li><a href="/covers/girls-book-covers/">For girls</a></li><li><a href="/covers/boys-book-covers/">For boys</a></li><li><a href="/covers/book-cover-template/">A4 template</a></li></ul>
 </div></nav>
-<section class="about policies" id="policies" aria-labelledby="polTitle"><div class="about-in">
-  <h2 id="polTitle">Refunds and privacy</h2>
-  <h3>Refunds</h3>
-  <p>If something isn't right, <a href="#contact" class="contact-link" data-topic="Refund">contact us</a> with the email address you paid with and what went wrong. Refunds are considered case by case, at our discretion.</p>
-  <h3>Privacy</h3>
-  <p>We store the email address you pay with (your account login), a scrambled version of your password that nobody can read, your payment records and a list of your downloads, so you can sign in on any device and see your history. We don't sell or share it. Payments are handled by Payfast; we never see your card or bank details. Your sets (names, subjects and themes) are saved in your own browser.</p>
+<section class="about privacy" id="privacy" aria-labelledby="privTitle"><div class="about-in">
+  <p class="eyebrow">Your family's privacy</p>
+  <h2 id="privTitle">🔒 Your children's details are safe with us</h2>
+  <p class="lead">We know these are your children's names and schools. We collect only what's needed to make and protect your covers, and we treat it with care.</p>
+  <div class="priv-grid">
+    <div class="priv-card"><b>🚫 Never sold or shared</b><p>We don't sell, rent or share your information with anyone. No advertisers, no data brokers, no marketing lists.</p></div>
+    <div class="priv-card"><b>🎯 Used only to make your covers</b><p>We keep what's on your covers (your child's name, grade, school, subjects and themes) so your sets stay locked to your child and you can download them again.</p></div>
+    <div class="priv-card"><b>🔑 Passwords nobody can read</b><p>Your password and recovery PIN are stored scrambled. Not even we can see them.</p></div>
+    <div class="priv-card"><b>💳 We never see your card</b><p>Payments are handled by Payfast, a trusted South African payment provider. Your card and bank details never reach us.</p></div>
+    <div class="priv-card"><b>👀 No tracking or ads</b><p>No advertising trackers or social media pixels on this site. Share buttons only open when you tap them.</p></div>
+    <div class="priv-card"><b>🗑️ Delete any time</b><p>Want your account and your children's details removed? <a href="#contact" class="contact-link" data-topic="Payment or my account">Contact us</a> and we'll delete them.</p></div>
+  </div>
+  <details class="faq"><summary>Exactly what we store</summary>
+    <ul class="priv-list">
+      <li><b>Your account:</b> the email you pay with (your login), your scrambled password and PIN, your payment records (date, amount, Payfast reference) and your packs.</li>
+      <li><b>Your sets:</b> each learner's name, grade, school and year, the themes used, and your saved designs (subjects, notes, colours and school logo) so you can download again.</li>
+      <li><b>Messages:</b> what you send through the contact or schools form.</li>
+      <li><b>On your own device:</b> your designs and sign-in are also kept in your browser, so the site remembers you. Signing out removes the sign-in.</li>
+      <li><b>Where:</b> stored with our hosting provider, Netlify, on secure servers that may be outside South Africa.</li>
+    </ul>
+  </details>
 </div></section>
-<footer class="foot"><div class="about-in foot-in"><span>© 2026 School Book Covers</span><span><a href="#contact" class="contact-link"><b>Contact us</b></a></span><span><a href="#policies">Refunds and privacy</a> · Payments secured by Payfast</span></div></footer>
+<section class="about policies" id="policies" aria-labelledby="polTitle"><div class="about-in">
+  <h2 id="polTitle">Refunds</h2>
+  <p>If something isn't right, <a href="#contact" class="contact-link" data-topic="Refund">contact us</a> with the email address you paid with and what went wrong. Refunds are considered case by case, at our discretion.</p>
+</div></section>
+<footer class="foot"><div class="about-in foot-in"><span>© 2026 School Book Covers</span><span><a href="#contact" class="contact-link"><b>Contact us</b></a></span><span><a href="#privacy">Privacy</a> · <a href="#policies">Refunds</a> · Payments secured by Payfast</span></div></footer>
 
 <div id="printArea" aria-hidden="true"></div>
 <div class="modal" id="acct" hidden role="dialog" aria-modal="true" aria-labelledby="acctTitle">

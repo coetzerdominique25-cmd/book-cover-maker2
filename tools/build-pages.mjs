@@ -169,7 +169,7 @@ ${imgs.length > 3 ? `<div class="covers" style="margin-bottom:12px">${imgs.slice
 <section class="card"><h2>Questions</h2>${p.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}<p style="margin-top:12px"><a href="/#faq">More questions and answers</a></p></section>
 <section class="card"><h2>More book covers</h2><ul class="links">${related(p).map(r => `<li><a href="/covers/${r.slug}/">${esc(r.label)}</a></li>`).join("")}<li><a href="/covers/">All book covers</a></li><li><a href="/#schools">Bulk pricing for schools</a></li></ul></section>
 </main>
-<footer><div class="wrap">© ${new Date().getFullYear()} School Book Covers · <a href="/#contact">Contact us</a> · <a href="/#policies">Refunds and privacy</a></div></footer>
+<footer><div class="wrap">© ${new Date().getFullYear()} School Book Covers · <a href="/#contact">Contact us</a> · <a href="/#privacy">Privacy</a> · <a href="/#policies">Refunds</a></div></footer>
 ${SHARE_JS}
 </body></html>`;
 }
