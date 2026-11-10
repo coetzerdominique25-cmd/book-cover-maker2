@@ -110,7 +110,7 @@ h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:6px 0 10px;letter-spaci
 details{border-bottom:1px solid var(--line);padding:10px 0}summary{cursor:pointer;font-weight:700}
 .links{columns:3 200px;column-gap:18px;padding:0;list-style:none;margin:0}.links li{margin:3px 0;break-inside:avoid}.links a{text-decoration:none}
 .ctas{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 4px}
-.share{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:14px;font-size:13px;color:var(--muted)}.share a,.share button{font:inherit;font-size:13px;font-weight:600;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);text-decoration:none;cursor:pointer}
+.share{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:14px;font-size:13px;color:var(--muted)}.share a,.share button{font:inherit;font-size:13px;font-weight:700;padding:6px 13px;border-radius:999px;border:0;color:#fff;text-decoration:none;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.12)}.s-wa{background:#1F8F4E}.s-fb{background:#1877F2}.s-pin{background:#E60023}.s-x{background:#111}.s-mail{background:#5B6270}.s-more{background:linear-gradient(135deg,#F58529,#DD2A7B,#8134AF)}
 .pin{display:inline-flex;align-items:center;gap:3px;color:#E60023;font-weight:700;text-decoration:none}
 footer{color:var(--muted);font-size:13px;padding:26px 0 40px}`;
 
@@ -126,13 +126,13 @@ const pinUrl = (pageUrl, img, desc) => "https://www.pinterest.com/pin/create/but
 const PIN = `<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#E60023"/><path d="M12.3 5.5c-3.7 0-5.6 2.6-5.6 4.8 0 1.3.5 2.5 1.6 2.9.2.1.3 0 .4-.2l.1-.6c.1-.2 0-.3-.1-.5-.3-.4-.5-.9-.5-1.6 0-2.1 1.6-3.9 4.1-3.9 2.2 0 3.5 1.4 3.5 3.2 0 2.4-1.1 4.5-2.7 4.5-.9 0-1.5-.7-1.3-1.6.2-1.1.7-2.2.7-3 0-.7-.4-1.3-1.2-1.3-.9 0-1.7 1-1.7 2.3 0 .8.3 1.4.3 1.4l-1.1 4.6c-.3 1.4 0 3.1 0 3.2 0 .1.1.1.2 0 .1-.1 1.1-1.4 1.5-2.7l.6-2.3c.3.6 1.2 1.1 2.2 1.1 2.9 0 4.8-2.6 4.8-6.1 0-2.6-2.3-5.1-5.8-5.1z" fill="#fff"/></svg>`;
 const shareRow = (url, text) => {
   const u = encodeURIComponent(url), t = encodeURIComponent(text);
-  return `<div class="share" aria-label="Share this page"><span>Share:</span>
-<a href="https://wa.me/?text=${encodeURIComponent(text + " " + url)}" target="_blank" rel="noopener">WhatsApp</a>
-<a href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a>
-<a href="https://www.pinterest.com/pin/create/button/?url=${u}&description=${t}" target="_blank" rel="noopener">Pinterest</a>
-<a href="https://twitter.com/intent/tweet?url=${u}&text=${t}" target="_blank" rel="noopener">X</a>
-<a href="mailto:?subject=${encodeURIComponent("School book covers")}&body=${encodeURIComponent(text + "\n" + url)}">Email</a>
-<button type="button" data-share="${url}" data-text="${esc(text)}">More…</button></div>`;
+  return `<div class="share" aria-label="Share this page"><span>Share with friends:</span>
+<a class="s-wa" href="https://wa.me/?text=${encodeURIComponent(text + " " + url)}" target="_blank" rel="noopener">WhatsApp</a>
+<a class="s-fb" href="https://www.facebook.com/sharer/sharer.php?u=${u}" target="_blank" rel="noopener">Facebook</a>
+<a class="s-pin" href="https://www.pinterest.com/pin/create/button/?url=${u}&description=${t}" target="_blank" rel="noopener">Pinterest</a>
+<a class="s-x" href="https://twitter.com/intent/tweet?url=${u}&text=${t}" target="_blank" rel="noopener">X</a>
+<a class="s-mail" href="mailto:?subject=${encodeURIComponent("School book covers")}&body=${encodeURIComponent(text + "\n" + url)}">Email</a>
+<button class="s-more" type="button" data-share="${url}" data-text="${esc(text)}">Instagram, TikTok &amp; more</button></div>`;
 };
 const SHARE_JS = `<script>document.querySelectorAll("[data-share]").forEach(b=>{b.onclick=async()=>{const url=b.dataset.share,text=b.dataset.text;if(navigator.share){try{await navigator.share({title:document.title,text,url})}catch(e){}}else{try{await navigator.clipboard.writeText(url);b.textContent="Link copied"}catch(e){prompt("Copy this link",url)}}}})</script>`;
 function page(p) {

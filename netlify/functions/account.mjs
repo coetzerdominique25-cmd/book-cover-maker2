@@ -181,9 +181,24 @@ export default async (req) => {
 
   if (act === "logdl") {
     const list = (await s.get("dl:" + ek, { type: "json" })) || [];
-    list.push({ at: new Date().toISOString(), name: normName(b.name).slice(0, 40), theme: String(b.theme || "").slice(0, 30), covers: Math.max(0, Math.min(99, Math.round(Number(b.covers) || 0))) });
+    // keep the design so the covers can be downloaded again later (deduplicated by content)
+    let did = "";
+    if (b.design && typeof b.design === "object") {
+      const raw = JSON.stringify(b.design);
+      if (raw.length <= 600000) {
+        did = crypto.createHash("sha256").update(raw).digest("hex").slice(0, 20);
+        await s.setJSON(`dsg:${ek}:${did}`, b.design);
+      }
+    }
+    list.push({ at: new Date().toISOString(), name: normName(b.name).slice(0, 40), theme: String(b.theme || "").slice(0, 30), covers: Math.max(0, Math.min(99, Math.round(Number(b.covers) || 0))), did });
     await s.setJSON("dl:" + ek, list.slice(-200));
     return json({ ok: true });
+  }
+
+  if (act === "design") {
+    const id = String(b.id || "").replace(/[^a-f0-9]/g, "").slice(0, 20);
+    const d = id && await s.get(`dsg:${ek}:${id}`, { type: "json" });
+    return d ? json({ design: d }) : json({ error: "That download isn't available any more." }, 404);
   }
 
   return json({ error: "Unknown action" }, 400);
