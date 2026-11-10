@@ -43,7 +43,7 @@ export function view(lic, u, now = Date.now()) {
     token: makeToken({ email: lic.email, kids: sm.kids, exp: sm.exp }),
     kids: sm.kids, exp: sm.exp, names: sm.names, room: sm.room, email: lic.email,
     packs: packsOf(lic, now).map(p => ({ id: p.id, kids: p.kids, exp: p.exp, names: p.names, active: p.active })),
-    hasPassword: !!(u && u.hash), learners, themesPerSet: THEMES_PER_SET,
+    hasPassword: !!(u && u.hash), hasPin: !!(u && u.pinHash), learners, themesPerSet: THEMES_PER_SET,
   };
 }
 

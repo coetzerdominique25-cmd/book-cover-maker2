@@ -437,7 +437,7 @@ canvas{max-width:100%}
       <details class="faq"><summary>What designs are available?</summary><p>Twelve themes: Street Label, Level Up, Hype Drop, Sticker Bomb, Retro Wave, Trading Card, Boarding Pass, Now Playing, Pastel Dream, Blossom, Turbo and Pitch Pro. Each subject gets its own colour and icon so books are easy to tell apart.</p></details>
       <details class="faq"><summary>How many sets can I make?</summary><p>A set is one learner's covers: their name, subjects and theme. Sets come in packs of up to 3. In each pack the first set is R50 and the 2nd and 3rd are R25 each (R100 for a full pack). Every pack lasts exactly 4 months from the day you pay for it. Sets you add to a pack later (R25 each) expire on that pack's date, not later. The 4th set starts a new pack at R50 again, then R25 for its 2nd and 3rd set, and so on. You can buy several packs at once (for example 4 sets = R150, 6 sets = R200), or add a new pack later with its own 4-month expiry. When a pack expires, its sets stop downloading until you buy a new pack. Your account page shows every pack and its exact expiry date.</p></details>
       <details class="faq"><summary>How long can I download my covers?</summary><p>Your pass lasts 4 months from the date of purchase. During that time you can download and reprint covers as often as you like, change subjects and themes, and switch between the sets on your pass. After 4 months you can renew to keep downloading. PDFs you have already saved stay yours to keep and print.</p></details>
-      <details class="faq"><summary>How do I sign in on another phone or computer?</summary><p>Tap <b>Sign in</b> at the top and use the email you paid with and your password. Forgot your password, or never set one? Choose “Forgot password” and we'll email you a link to pick a new one. You can also use the payment reference from your Payfast payment email or invoice. Your account also shows your payments, invoices and download history.</p></details>
+      <details class="faq"><summary>How do I sign in on another phone or computer?</summary><p>Tap <b>Sign in</b> at the top and use the email you paid with and your password. Forgot your password? Choose “Forgot password” and enter your recovery PIN (the one you chose with your password) to set a new password. Forgot the PIN too? Use the contact form and we'll unlock your account. Your account also shows your payments, invoices and download history.</p></details>
       <details class="faq"><summary>Can I change the name or theme after paying?</summary><p>A set belongs to one learner. When you add a learner to your pass, their name, grade, school and year are locked, so a set can't be reused for another child (please check the spelling first). You can still change subjects, copies, colours, the line under the name and the school logo. Each set includes 2 themes. Switching between those 2 is free; a 3rd theme needs another set for that learner (R25, or R50 if it starts a new pack), which adds 2 more themes. Spelling mistake? Contact us (link at the bottom of the page) and we'll fix it.</p></details>
       <details class="faq"><summary>Can I get a refund?</summary><p>If something isn't right, <a href="#contact" class="contact-link" data-topic="Refund">contact us</a> with the email address you paid with and what went wrong. Refunds are considered case by case, at our discretion.</p></details>
       <details class="faq"><summary>How do I pay?</summary><p>Payments are processed securely by Payfast. You can pay by credit or debit card, Instant EFT, Apple Pay, Google Pay and other Payfast methods.</p></details>
@@ -1368,7 +1368,7 @@ async function build(){
 function scheduleBuild(){clearTimeout(buildTimer);gen++;pdfReady=null;setBtn();if(!isUnlocked())return;buildTimer=setTimeout(()=>build().catch(()=>{status("Couldn't build the PDF here.",true);$("asimg").hidden=false}),900)}
 function anchorDownload(){const a=document.createElement("a");a.href=pdfReady.url;a.download=pdfReady.name;a.rel="noopener";document.body.appendChild(a);a.click();a.remove()}
 async function api(path,opts){const r=await fetch(API+path,opts);let j={};try{j=await r.json()}catch(e){}return {ok:r.ok,status:r.status,body:j}}
-function applyPass(b){savePass({token:b.token,kids:b.kids,exp:b.exp,names:b.names||[],email:b.email||(LIC&&LIC.email)||"",hasPassword:("hasPassword" in b)?!!b.hasPassword:!!(LIC&&LIC.hasPassword),room:("room" in b)?b.room:undefined,packs:b.packs||(LIC&&LIC.packs)||[],learners:b.learners||(LIC&&LIC.learners)||{},tps:b.themesPerSet||2});renderPreview();renderThemes();scheduleBuild()}
+function applyPass(b){savePass({token:b.token,kids:b.kids,exp:b.exp,names:b.names||[],email:b.email||(LIC&&LIC.email)||"",hasPassword:("hasPassword" in b)?!!b.hasPassword:!!(LIC&&LIC.hasPassword),hasPin:("hasPin" in b)?!!b.hasPin:!!(LIC&&LIC.hasPin),room:("room" in b)?b.room:undefined,packs:b.packs||(LIC&&LIC.packs)||[],learners:b.learners||(LIC&&LIC.learners)||{},tps:b.themesPerSet||2});renderPreview();renderThemes();scheduleBuild()}
 function claim(extra){const nm=normName(state.name);const tn=(THEMES[state.theme]||{}).name;
   const dl=`<dl><dt>Name</dt><dd>${esc(nm)}</dd><dt>Grade</dt><dd>${esc(state.grade||"–")}</dd><dt>School</dt><dd>${esc(state.school||"–")}</dd><dt>Year</dt><dd>${esc(state.year||"–")}</dd></dl>`;
   if(extra)lockAsk("Add another set for "+nm,`<p>This uses one of your free places for <b>${esc(nm)}</b> and unlocks <b>2 more themes</b> for them.</p>`,()=>doClaim(true));
@@ -1435,7 +1435,7 @@ async function confirmReturn(order){
   const until=Date.now()+120000;
   while(Date.now()<until){
     try{const r=await api("/license?order="+encodeURIComponent(order));
-      if(r.ok&&r.body.token){applyPass(r.body);closePay();status("Payment received. You're unlocked!");if(!r.body.hasPassword){acctTab="pass";openAcct();acctMsg("Payment received. Create a password now so you can sign in on any device.")}return}
+      if(r.ok&&r.body.token){applyPass(r.body);closePay();status("Payment received. You're unlocked!");if(!r.body.hasPassword){acctTab="pass";openAcct();acctMsg("Payment received. Create a password and recovery PIN now so you can sign in on any device.")}return}
       if(["cancelled","failed"].includes(r.body.status)){showPane("pwBuy");paintPrice();pwMsg("That payment didn't go through. You weren't charged.");return}}
     catch(e){}
     await new Promise(r=>setTimeout(r,2500))}
@@ -1503,7 +1503,7 @@ const money=a=>"R"+Number(a).toFixed(2);
 function renderAccount(){
   const box=$("acctBody");
   if(!LIC||!LIC.token){
-    $("acctTitle").textContent=acctView==="reset"?"Set or reset password":"Sign in";
+    $("acctTitle").textContent=acctView==="reset"?"Reset your password":"Sign in";
     if(acctView==="newpw"){
       box.innerHTML=`<p class="lead">Choose a new password for your account.</p>${pwField("npwPw","New password","new-password")}<p class="fine">${PWHINT}</p><button class="btn primary big full" id="npwGo" type="button">Save password and sign in</button>`;
       $("acctTitle").textContent="Choose a new password";wireEyes();
@@ -1511,10 +1511,13 @@ function renderAccount(){
         busy("npwGo",true);acctMsg("");try{const r=await post("/account",{action:"reset",rt:resetToken,password});if(r.ok&&r.body.token){resetToken="";signedIn(r.body,"Password saved. You're signed in.")}else acctMsg(r.body.error||"Something went wrong.")}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy("npwGo",false)}};
       return}
     if(acctView==="reset"){
-      box.innerHTML=`<p class="lead">Forgot your password, or never set one? We'll email you a link to choose a new one.</p>
+      box.innerHTML=`<p class="lead">Forgot your password? Reset it with the recovery PIN you chose.</p>
         <label class="f">Email you paid with<input type="email" id="rsEmail" autocomplete="email" inputmode="email"></label>
-        <button class="btn primary big full" id="fgGo" type="button">Email me a reset link</button>
-        <details class="opts" id="refBox"><summary>No email? Use your payment reference instead</summary>
+        <label class="f">Recovery PIN<input type="text" id="rsPin" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="At least 4 characters"></label>
+        ${pwField("rpPw","New password","new-password")}<p class="fine">${PWHINT}</p>
+        <button class="btn primary big full" id="rpGo" type="button">Reset password and sign in</button>
+        <p class="fine center" style="margin-top:10px">Forgot your PIN? <a href="#contact" data-topic="Payment or my account">Contact us</a> and we'll unlock your account.</p>
+        <details class="opts" id="refBox"><summary>Never set a PIN? Use your payment reference</summary>
         <label class="f">Payment reference<input type="text" id="rsRef" autocomplete="off" autocapitalize="characters" placeholder="e.g. BCM-3F9A1C2B7D10 or 2481036"></label>
         <p class="fine">Find it on your Payfast payment email (the <b>Payment ID</b>) or on any invoice from us (starts with <b>BCM-</b>).</p>
         ${pwField("rsPw","New password","new-password")}<p class="fine">${PWHINT}</p>
@@ -1522,17 +1525,19 @@ function renderAccount(){
         <button class="linkbtn center" id="toSignin" type="button">Back to sign in</button>`;
       $("rsEmail").value=lastEmail();wireEyes();
       $("toSignin").onclick=()=>{acctView="signin";renderAccount();acctMsg("")};
-      $("fgGo").onclick=async()=>{const email=$("rsEmail").value.trim();if(!okEmail(email)){acctMsg("Please enter a valid email address.");return}
-        busy("fgGo",true,"Sending…");acctMsg("");try{const r=await post("/account",{action:"forgot",email});acctMsg(r.ok?r.body.message:(r.body.error||"Couldn't send the email."));if(r.body.noMail)$("refBox").open=true}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy("fgGo",false)}};
+      box.querySelector('a[href="#contact"]').addEventListener("click",()=>closeAcct());
+      $("rpGo").onclick=async()=>{const email=$("rsEmail").value.trim(),pin=$("rsPin").value.trim(),password=$("rpPw").value;
+        if(!okEmail(email)){acctMsg("Please enter a valid email address.");return}if(pin.length<4){acctMsg("Enter your recovery PIN.");return}if(password.length<8){acctMsg("Use a password of at least 8 characters.");return}
+        busy("rpGo",true);acctMsg("");try{const r=await post("/account",{action:"pinreset",email,pin,password});if(r.ok&&r.body.token)signedIn(r.body,"Password reset. You're signed in.");else{acctMsg(r.body.error||"Couldn't reset the password.");if(r.body.noPin)$("refBox").open=true}}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy("rpGo",false)}};
       $("rsGo").onclick=async()=>{const email=$("rsEmail").value.trim(),ref=$("rsRef").value.trim(),password=$("rsPw").value;
         if(!okEmail(email)){acctMsg("Please enter a valid email address.");return}if(!ref){acctMsg("Please enter your payment reference.");return}if(password.length<8){acctMsg("Use a password of at least 8 characters.");return}
-        busy("rsGo",true);acctMsg("");try{const r=await post("/account",{action:"setup",email,ref,password});if(r.ok&&r.body.token)signedIn(r.body,"Password saved. You're signed in.");else acctMsg(r.body.error||"Something went wrong. Please try again.")}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy("rsGo",false)}};
+        busy("rsGo",true);acctMsg("");try{const r=await post("/account",{action:"setup",email,ref,password});if(r.ok&&r.body.token)signedIn(r.body,"Password saved. You're signed in. Add a recovery PIN in My account.");else acctMsg(r.body.error||"Something went wrong. Please try again.")}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy("rsGo",false)}};
       return}
     box.innerHTML=`<p class="lead">Sign in to use your pass on this phone or computer.</p>
       <label class="f">Email<input type="email" id="siEmail" autocomplete="username" inputmode="email"></label>
       ${pwField("siPw","Password","current-password")}
       <button class="btn primary big full" id="siGo" type="button">Sign in</button>
-      <button class="linkbtn center" id="toReset" type="button">Forgot password, or first time signing in?</button>
+      <button class="linkbtn center" id="toReset" type="button">Forgot password?</button>
       <div class="acct-box"><b>New here?</b><span class="fine">R50 for your first set, R25 for every set after that. Valid 4 months.</span><button class="btn" id="aBuy" type="button">Buy a pass · from R50</button></div>`;
     $("siEmail").value=lastEmail();wireEyes();
     $("toReset").onclick=()=>{acctView="reset";renderAccount();acctMsg("")};
@@ -1568,7 +1573,8 @@ async function loadHist(){try{const r=await post("/account",{action:"history",to
   if(!$("acct").hidden)renderAccount()}
 
 function passTab(tb){const active=isUnlocked();
-  const pwNag=!LIC.hasPassword?`<div class="acct-box hl" id="pwNag"><b>Create a password</b><span class="fine">So you can sign in on any phone or computer, and keep your pass safe.</span>${pwField("npPw","New password","new-password")}<button class="btn primary" id="npGo" type="button">Save password</button></div>`:"";
+  const pwNag=!LIC.hasPassword?`<div class="acct-box hl" id="pwNag"><b>Create a password and recovery PIN</b><span class="fine">Sign in on any phone or computer with your email and password. If you ever forget the password, your PIN lets you reset it here.</span>${pwField("npPw","New password","new-password")}<label class="f">Recovery PIN (keep it somewhere safe)<input type="text" id="npPin" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="At least 4 characters"></label><button class="btn primary" id="npGo" type="button">Save password and PIN</button></div>`
+    :!LIC.hasPin?`<div class="acct-box hl" id="pwNag"><b>Add a recovery PIN</b><span class="fine">If you forget your password, you'll reset it with this PIN. No email needed.</span><label class="f">Recovery PIN<input type="text" id="npPin" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="At least 4 characters"></label>${pwField("npCur","Your current password","current-password")}<button class="btn primary" id="npGoPin" type="button">Save PIN</button></div>`:"";
   if(!active){
     tb.innerHTML=`<div class="acct-row"><span class="acct-k">Status</span><span class="acct-v" style="color:var(--warn)">Ended ${fmtDate(LIC.exp)}</span></div>
       <p class="lead">Renew to keep downloading. Your sets (names, subjects and themes) stay saved on this device.</p>
@@ -1593,16 +1599,22 @@ function passTab(tb){const active=isUnlocked();
     $("eMinus").onclick=()=>{if(extra>1){extra--;paint()}};$("ePlus").onclick=()=>{if(extra<maxE){extra++;paint()}};$("aTop").onclick=buyTopup}
   else $("aNew").onclick=newPack;
   wireNag()}
-function wireNag(){if(!$("npGo"))return;wireEyes();$("npGo").onclick=()=>savePw("npPw",null,"npGo")}
-async function savePw(newId,curId,btnId){const password=$(newId).value,current=curId?$(curId).value:undefined;
+function wireNag(){wireEyes();if($("npGo"))$("npGo").onclick=()=>savePw("npPw",null,"npGo","npPin");if($("npGoPin"))$("npGoPin").onclick=()=>savePin("npPin","npCur","npGoPin")}
+async function savePw(newId,curId,btnId,pinId){const password=$(newId).value,current=curId?$(curId).value:undefined,pin=pinId&&$(pinId)?$(pinId).value.trim():undefined;
   if(password.length<8){acctMsg("Use a password of at least 8 characters.");return}
-  busy(btnId,true);acctMsg("");try{const r=await post("/account",{action:"setpw",token:LIC.token,password,current});
-    if(r.ok&&r.body.token){savePass({...LIC,hasPassword:true,token:r.body.token});renderAccount();acctMsg("Password saved. Use it with "+(LIC.email||"your email")+" to sign in anywhere.")}
+  if(pinId&&(!pin||pin.length<4)){acctMsg("Choose a recovery PIN of at least 4 characters.");return}
+  busy(btnId,true);acctMsg("");try{const r=await post("/account",{action:"setpw",token:LIC.token,password,current,pin});
+    if(r.ok&&r.body.token){applyPass(r.body);renderAccount();acctMsg(pin?"Password and PIN saved. Keep your PIN somewhere safe: it resets your password.":"Password saved. Use it with "+(LIC.email||"your email")+" to sign in anywhere.")}
     else acctMsg(r.body.error||"Couldn't save the password.")}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy(btnId,false)}}
+async function savePin(pinId,curId,btnId){const pin=$(pinId).value.trim(),current=curId&&$(curId)?$(curId).value:undefined;
+  if(pin.length<4){acctMsg("Choose a recovery PIN of at least 4 characters.");return}
+  busy(btnId,true);acctMsg("");try{const r=await post("/account",{action:"setpin",token:LIC.token,pin,current});
+    if(r.ok&&r.body.token){applyPass(r.body);renderAccount();acctMsg("Recovery PIN saved. Keep it somewhere safe.")}else acctMsg(r.body.error||"Couldn't save the PIN.")}catch(e){acctMsg("Couldn't connect. Check your internet and try again.")}finally{busy(btnId,false)}}
 function pwTab(tb){
-  tb.innerHTML=LIC.hasPassword?`<p class="lead">Change the password you sign in with.</p>${pwField("cpCur","Current password","current-password")}${pwField("cpNew","New password","new-password")}<p class="fine">${PWHINT} Forgot it? Sign out, then choose “Forgot password”.</p><button class="btn primary" id="cpGo" type="button">Change password</button>`
-    :`<p class="lead">You haven't set a password yet.</p>${pwField("cpNew","New password","new-password")}<p class="fine">${PWHINT}</p><button class="btn primary" id="cpGo" type="button">Save password</button>`;
-  wireEyes();$("cpGo").onclick=()=>savePw("cpNew",LIC.hasPassword?"cpCur":null,"cpGo")}
+  tb.innerHTML=LIC.hasPassword?`<p class="lead">Change the password you sign in with.</p>${pwField("cpCur","Current password","current-password")}${pwField("cpNew","New password","new-password")}<p class="fine">${PWHINT} Forgot it? Sign out, choose “Forgot password” and use your recovery PIN.</p><button class="btn primary" id="cpGo" type="button">Change password</button>`
+    :`<p class="lead">You haven't set a password yet.</p>${pwField("cpNew","New password","new-password")}<p class="fine">${PWHINT}</p><label class="f">Recovery PIN<input type="text" id="cpPin" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="At least 4 characters"></label><button class="btn primary" id="cpGo" type="button">Save password and PIN</button>`;
+  if(LIC.hasPassword)tb.insertAdjacentHTML("beforeend",`<hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><p class="lead">${LIC.hasPin?"Change your recovery PIN":"Add a recovery PIN"}</p><p class="fine">Your PIN lets you reset a forgotten password here, without email.</p><label class="f">New PIN<input type="text" id="spPin" maxlength="40" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="At least 4 characters"></label>${pwField("spCur","Your password","current-password")}<button class="btn" id="spGo" type="button">Save PIN</button>`);
+  wireEyes();$("cpGo").onclick=()=>savePw("cpNew",LIC.hasPassword?"cpCur":null,"cpGo",LIC.hasPassword?null:"cpPin");if($("spGo"))$("spGo").onclick=()=>savePin("spPin","spCur","spGo")}
 
 async function invoice(o){
   try{await ensurePdf()}catch(e){acctMsg("Couldn't load the invoice tool. Check your internet and try again.");return}

@@ -22,12 +22,19 @@ async function limited(s, ek) {
   return r && r.until > Date.now();
 }
 async function fail(s, ek) {
+  const now = Date.now();
   const r = (await s.get("rl:" + ek, { type: "json" })) || { n: 0 };
-  r.n = (r.until && r.until < Date.now()) ? 1 : r.n + 1;
-  r.until = r.n >= MAX_FAILS ? Date.now() + LOCK_MS : 0;
+  if (!r.day || now - r.day > 864e5) { r.day = now; r.total = 0; }
+  r.total = (r.total || 0) + 1;
+  r.n = (r.until && r.until < now) ? 1 : r.n + 1;
+  r.until = r.total >= 20 ? now + 864e5 : (r.n >= MAX_FAILS ? now + LOCK_MS : 0);
   await s.setJSON("rl:" + ek, r);
 }
 const clearFails = (s, ek) => s.setJSON("rl:" + ek, { n: 0, until: 0 });
+// Recovery PIN: at least 4 characters, hashed like a password
+const pinError = (p) => (typeof p !== "string" || p.trim().length < 4) ? "Choose a recovery PIN of at least 4 characters." : (p.length > 40 ? "That PIN is too long." : null);
+const pinHashOf = (pin) => { const pinSalt = crypto.randomBytes(16).toString("hex"); return { pinSalt, pinHash: hashPw(String(pin).trim(), pinSalt) }; };
+const checkPin = (pin, u) => { if (!u || !u.pinHash) return false; const a = Buffer.from(hashPw(String(pin || "").trim(), u.pinSalt), "hex"), b = Buffer.from(u.pinHash, "hex"); return a.length === b.length && crypto.timingSafeEqual(a, b); };
 
 async function viewFor(s, lic) {
   const u = await s.get("user:" + emailKey(lic.email), { type: "json" });
@@ -50,6 +57,24 @@ export default async (req) => {
   let b; try { b = await req.json(); } catch { return json({ error: "Bad request" }, 400); }
   const s = store();
   const act = String(b.action || "");
+
+  if (act === "pinreset") {
+    const email = String(b.email || "").trim();
+    if (!validEmail(email)) return json({ error: "Please enter a valid email address." }, 400);
+    const err = pwError(b.password); if (err) return json({ error: err }, 400);
+    const ek = emailKey(email);
+    if (await limited(s, ek)) return json(LOCKED, 429);
+    const lic = await s.get("lic:" + ek, { type: "json" });
+    const u = await s.get("user:" + ek, { type: "json" });
+    if (!lic || !checkPin(b.pin, u)) {
+      await fail(s, ek);
+      if (lic && !(u && u.pinHash)) return json({ error: "This account has no recovery PIN yet. Use your payment reference below, or contact us to unlock it.", noPin: true }, 401);
+      return json({ error: "That email and PIN don't match. Forgot your PIN? Contact us to unlock your account." }, 401);
+    }
+    await s.setJSON("user:" + ek, { ...u, ...newHash(b.password), updated: new Date().toISOString() });
+    await clearFails(s, ek);
+    return json(await viewFor(s, lic));
+  }
 
   if (act === "login" || act === "setup") {
     const email = String(b.email || "").trim();
@@ -132,7 +157,20 @@ export default async (req) => {
       if (await limited(s, ek)) return json(LOCKED, 429);
       await fail(s, ek); return json({ error: "Your current password is not right." }, 401);
     }
-    await s.setJSON("user:" + ek, { ...(u || {}), ...newHash(b.password), updated: new Date().toISOString() });
+    const needPin = !(u && u.pinHash);
+    if (needPin || b.pin) { const pe = pinError(b.pin); if (pe) return json({ error: pe }, 400); }
+    await s.setJSON("user:" + ek, { ...(u || {}), ...newHash(b.password), ...(b.pin ? pinHashOf(b.pin) : {}), updated: new Date().toISOString() });
+    return json(await viewFor(s, lic));
+  }
+
+  if (act === "setpin") {
+    const pe = pinError(b.pin); if (pe) return json({ error: pe }, 400);
+    const u = await s.get("user:" + ek, { type: "json" });
+    if (u && u.hash && !checkPw(b.current, u)) {
+      if (await limited(s, ek)) return json(LOCKED, 429);
+      await fail(s, ek); return json({ error: "Your password is not right." }, 401);
+    }
+    await s.setJSON("user:" + ek, { ...(u || {}), ...pinHashOf(b.pin), updated: new Date().toISOString() });
     return json(await viewFor(s, lic));
   }
 
