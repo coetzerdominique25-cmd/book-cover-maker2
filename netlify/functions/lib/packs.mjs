@@ -29,24 +29,54 @@ export function summary(lic, now = Date.now()) {
   return { kids, names, exp, room: tp ? MAX_KIDS - tp.kids : 0, active: act.length > 0 };
 }
 
+export const THEMES_PER_SET = 2;
+const cleanMeta = (m = {}) => ({ grade: String(m.grade || "").trim().toUpperCase().slice(0, 4), school: String(m.school || "").trim().slice(0, 60), year: String(m.year || "").trim().slice(0, 4) });
+// How many active sets a learner name holds (a learner can take more than one set to unlock more themes)
+export const setCount = (lic, name, now = Date.now()) => activePacks(lic, now).reduce((n, p) => n + p.names.filter(x => x === name).length, 0);
+
 export function view(lic, u, now = Date.now()) {
   const sm = summary(lic, now);
+  const learners = {};
+  [...new Set(sm.names)].forEach(n => { learners[n] = { ...(lic.meta && lic.meta[n] || {}), themes: (lic.themes && lic.themes[n]) || [], sets: setCount(lic, n, now) }; });
   return {
     status: sm.active ? "active" : "expired",
     token: makeToken({ email: lic.email, kids: sm.kids, exp: sm.exp }),
     kids: sm.kids, exp: sm.exp, names: sm.names, room: sm.room, email: lic.email,
     packs: packsOf(lic, now).map(p => ({ id: p.id, kids: p.kids, exp: p.exp, names: p.names, active: p.active })),
-    hasPassword: !!(u && u.hash),
+    hasPassword: !!(u && u.hash), learners, themesPerSet: THEMES_PER_SET,
   };
 }
 
-// Put a learner on the account: already on an active pack, or into the earliest-expiring active pack with a free place.
-export function claim(lic, name, now = Date.now()) {
+// Put a learner on the account. Their name, grade, school and year are locked from the first claim.
+// extra=true takes another set for a learner already on the account (2 more themes).
+export function claim(lic, name, meta, theme, now = Date.now(), extra = false) {
   packsOf(lic, now);
   const act = lic.packs.filter(p => p.exp > now);
-  if (act.some(p => (p.names || []).includes(name))) return "ok";
+  const has = act.some(p => (p.names || []).includes(name));
+  if (has && !extra) { recordFirst(lic, name, meta, theme); return "ok"; }
   const free = act.filter(p => (p.names || []).length < p.kids).sort((a, b) => a.exp - b.exp)[0];
   if (!free) return "full";
   free.names = [...(free.names || []), name];
+  recordFirst(lic, name, meta, theme);
+  return "added";
+}
+function recordFirst(lic, name, meta, theme) {
+  lic.meta = lic.meta || {}; lic.themes = lic.themes || {};
+  if (!lic.meta[name]) lic.meta[name] = cleanMeta(meta);
+  const t = lic.themes[name] || [];
+  if (theme && !t.length) t.push(theme); // first theme comes with the first claim
+  lic.themes[name] = t;
+}
+
+// Use a theme for a learner: free if already used, allowed while under 2 themes per set they hold.
+export function useTheme(lic, name, theme, now = Date.now(), meta = null) {
+  const n = setCount(lic, name, now);
+  if (!n) return "noset";
+  lic.themes = lic.themes || {}; lic.meta = lic.meta || {};
+  if (!lic.meta[name] && meta) lic.meta[name] = cleanMeta(meta); // older sets lock on their next download
+  const t = lic.themes[name] || [];
+  if (t.includes(theme)) return "ok";
+  if (t.length >= THEMES_PER_SET * n) return "limit";
+  lic.themes[name] = [...t, theme];
   return "added";
 }

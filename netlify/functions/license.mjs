@@ -1,6 +1,6 @@
 import { readToken, emailKey, normName, json, validEmail } from "./lib/payfast.mjs";
 import { store } from "./lib/store.mjs";
-import { view, claim, summary } from "./lib/packs.mjs";
+import { view, claim, summary, useTheme } from "./lib/packs.mjs";
 const userOf = (s, lic) => s.get("user:" + emailKey(lic.email), { type: "json" });
 
 export default async (req) => {
@@ -33,9 +33,19 @@ export default async (req) => {
     if (!lic || !summary(lic).active) return json({ status: "expired" }, 403);
     const name = normName(body.name);
     if (!name) return json({ error: "Missing name" }, 400);
-    const r = claim(lic, name);
-    if (r === "full") { const v = view(lic, await userOf(s, lic)); return json({ ...v, status: "full" }, 409); }
-    if (r === "added") await s.setJSON(key, lic);
+    const THEMES = ["street","level","hype","sticker","retro","card","ticket","player","pastel","blossom","turbo","pitch"];
+    const theme = THEMES.includes(body.theme) ? body.theme : "";
+    if (body.action === "theme") {
+      if (!theme) return json({ error: "Unknown theme" }, 400);
+      const r = useTheme(lic, name, theme, Date.now(), { grade: body.grade, school: body.school, year: body.year });
+      if (r === "noset") { const v = view(lic, await userOf(s, lic)); return json({ ...v, status: "noset" }, 409); }
+      if (r === "limit") { const v = view(lic, await userOf(s, lic)); return json({ ...v, status: "themelimit" }, 409); }
+      if (r === "added") await s.setJSON(key, lic);
+    } else {
+      const r = claim(lic, name, { grade: body.grade, school: body.school, year: body.year }, theme, Date.now(), !!body.extra);
+      if (r === "full") { const v = view(lic, await userOf(s, lic)); return json({ ...v, status: "full" }, 409); }
+      await s.setJSON(key, lic);
+    }
     return json(view(lic, await userOf(s, lic)));
   }
   return json({ error: "Method not allowed" }, 405);
