@@ -414,15 +414,16 @@ canvas{max-width:100%}
         <ul class="ticks sch-ticks"><li>Your crest and colours</li><li>Your own subject list</li><li>One design for the whole grade</li><li>Bulk pricing</li></ul>
         <p class="fine">Prefer email? Write to <a href="mailto:coetzerdominique25@gmail.com?subject=School%20book%20covers%20enquiry">coetzerdominique25@gmail.com</a></p>
       </div>
-      <form class="sch-form" id="schForm" novalidate>
+      <form class="sch-form" id="schForm" name="school-enquiry" method="POST" data-netlify="true" netlify-honeypot="company_url" novalidate>
+        <input type="hidden" name="form-name" value="school-enquiry"><p hidden><label>Leave empty <input name="company_url" tabindex="-1" autocomplete="off"></label></p>
         <b>Send us an enquiry</b>
-        <label class="f">School name<input type="text" id="sqSchool" required maxlength="80" autocomplete="organization"></label>
-        <label class="f">Your name<input type="text" id="sqName" required maxlength="60" autocomplete="name"></label>
-        <label class="f">Your email<input type="email" id="sqEmail" required maxlength="120" autocomplete="email" inputmode="email"></label>
-        <label class="f">Number of learners (roughly)<input type="text" id="sqCount" maxlength="20" inputmode="numeric" placeholder="e.g. 240"></label>
-        <label class="f">Anything else? (optional)<textarea id="sqMsg" rows="3" maxlength="800" placeholder="Grades, subjects, when you need them"></textarea></label>
-        <button class="btn primary big full" type="submit">Email my enquiry</button>
-        <p class="fine center" id="sqNote">Opens your email app with everything filled in. Just press Send.</p>
+        <label class="f">School name<input type="text" id="sqSchool" name="school" required maxlength="80" autocomplete="organization"></label>
+        <label class="f">Your name<input type="text" id="sqName" name="name" required maxlength="60" autocomplete="name"></label>
+        <label class="f">Your email<input type="email" id="sqEmail" name="email" required maxlength="120" autocomplete="email" inputmode="email"></label>
+        <label class="f">Number of learners (roughly)<input type="text" id="sqCount" name="learners" maxlength="20" inputmode="numeric" placeholder="e.g. 240"></label>
+        <label class="f">Anything else? (optional)<textarea id="sqMsg" name="message" rows="3" maxlength="800" placeholder="Grades, subjects, when you need them"></textarea></label>
+        <button class="btn primary big full" type="submit" id="sqGo">Send enquiry</button>
+        <p class="fine center" id="sqNote">We usually reply within one working day.</p>
       </form>
     </div>
     <h2 id="faq">Frequently asked questions</h2>
@@ -656,11 +657,15 @@ $("logoFile").onchange=e=>{const f=e.target.files&&e.target.files[0];e.target.va
     im.onerror=()=>status("Couldn't read that picture. Try a PNG or JPG.",true);im.src=rd.result};rd.readAsDataURL(f)};
 $("logoDel").onclick=()=>{useLogo("");status("School logo removed.")};
 // schools enquiry -> prefilled email
-$("schForm").onsubmit=e=>{e.preventDefault();const v=id=>$(id).value.trim();
-  if(!v("sqSchool")||!v("sqName")||!okEmail(v("sqEmail"))){$("sqNote").textContent="Please fill in the school, your name and a valid email.";$("sqNote").style.color="var(--warn)";return}
-  const body=`School: ${v("sqSchool")}\nContact: ${v("sqName")}\nEmail: ${v("sqEmail")}\nLearners: ${v("sqCount")||"-"}\n\n${v("sqMsg")}\n`;
-  location.href="mailto:coetzerdominique25@gmail.com?subject="+encodeURIComponent("School book covers enquiry - "+v("sqSchool"))+"&body="+encodeURIComponent(body);
-  $("sqNote").style.color="";$("sqNote").innerHTML='Your email app should open now. If it doesn\'t, email <a href="mailto:coetzerdominique25@gmail.com">coetzerdominique25@gmail.com</a>.'};
+$("schForm").onsubmit=async e=>{e.preventDefault();const f=$("schForm"),v=id=>$(id).value.trim(),note=$("sqNote"),btn=$("sqGo");
+  if(!v("sqSchool")||!v("sqName")||!okEmail(v("sqEmail"))){note.textContent="Please fill in the school, your name and a valid email.";note.style.color="var(--warn)";return}
+  btn.disabled=true;btn.textContent="Sending…";note.style.color="";
+  try{const r=await fetch("/",{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams(new FormData(f)).toString()});
+    if(!r.ok)throw new Error(r.status);
+    f.innerHTML='<b>Thank you!</b><p style="margin:6px 0 0">Your enquiry has been sent. We\'ll reply to <b>'+esc(v("sqEmail")||"")+'</b> within one working day.</p>';}
+  catch(err){btn.disabled=false;btn.textContent="Send enquiry";
+    const body=`School: ${v("sqSchool")}\nContact: ${v("sqName")}\nEmail: ${v("sqEmail")}\nLearners: ${v("sqCount")||"-"}\n\n${v("sqMsg")}\n`;
+    note.innerHTML='Couldn\'t send just now. <a href="mailto:coetzerdominique25@gmail.com?subject='+encodeURIComponent("School book covers enquiry - "+v("sqSchool"))+'&body='+encodeURIComponent(body)+'">Email it to us instead</a>.';note.style.color="var(--warn)"}};
 // themes per set: 2; a 3rd needs another set for that learner
 function useTheme(){const L=learner(),nm=normName(state.name),tn=(THEMES[state.theme]||{}).name,used=(L.themes||[]).length,slots=themeSlots(L);
   const go=async()=>{$("pdf").disabled=true;try{const r=await api("/license",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token:LIC.token,name:nm,theme:state.theme,action:"theme",grade:state.grade,school:state.school,year:state.year})});
