@@ -256,6 +256,8 @@ canvas{max-width:100%}
 .rules{margin:12px 0;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,rgba(47,85,212,.07),rgba(46,158,68,.06));border:1px solid var(--line)}
 .rules-h{display:block;font-size:14px;margin-bottom:6px}.rules ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
 .rules li{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.4;color:var(--ink)}.rules li span{font-size:16px;line-height:1.2;flex:none}
+.promo{margin-top:10px;border:1px dashed var(--accent);border-radius:10px;padding:8px 12px;background:rgba(47,85,212,.05)}.promo summary{cursor:pointer;font-weight:700;color:var(--accent)}
+.promo-row{display:flex;gap:8px;margin-top:8px}.promo-row input{flex:1;text-transform:uppercase;letter-spacing:1px;font-weight:700}
 .lock-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:rgba(47,85,212,.07);border:1px solid rgba(47,85,212,.25);font-size:13px;line-height:1.45}
 .fields input[readonly]{background:var(--bg);color:var(--muted);cursor:not-allowed}
 .theme .tbadge{position:absolute;top:4px;right:4px;font-size:10px;font-weight:800;padding:2px 6px;border-radius:999px;background:#1F8F4E;color:#fff}
@@ -539,6 +541,10 @@ canvas{max-width:100%}
       </div>
       <label class="f">Your email (this becomes your account login)<input type="email" id="pEmail" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
       <button class="btn primary big full" id="payBtn" type="button">Pay R50</button>
+      <details class="promo" id="promoBox"><summary>🎁 Have a promo code?</summary>
+        <div class="promo-row"><input type="text" id="promoCode" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter code" aria-label="Promo code"><button class="btn" id="promoGo" type="button">Claim free set</button></div>
+        <p class="fine">Uses the email above as your login. One free set (1 learner, 1 theme) per family while the promo lasts.</p>
+      </details>
       <p class="fine center">Card or Instant EFT, processed securely by Payfast.<span id="testBadge" hidden> <b>TEST MODE</b></span></p>
       <button class="linkbtn center" id="toRestore" type="button">Already have an account? Sign in</button>
     </div>
@@ -699,6 +705,21 @@ $("schForm").onsubmit=async e=>{e.preventDefault();const f=$("schForm"),v=id=>$(
   catch(err){btn.disabled=false;btn.textContent="Send enquiry";
     const body=`School: ${v("sqSchool")}\nContact: ${v("sqName")}\nEmail: ${v("sqEmail")}\nLearners: ${v("sqCount")||"-"}\n\n${v("sqMsg")}\n`;
     note.textContent="Couldn't send just now. Please check your connection and try again.";note.style.color="var(--warn)"}};
+// promo code: free set for the first few, one per email
+$("promoGo").onclick=async()=>{const code=$("promoCode").value.trim(),email=$("pEmail").value.trim();
+  if(!code){pwMsg("Enter your promo code.");return}if(!okEmail(email)){pwMsg("Enter your email first. It becomes your login.");$("pEmail").focus();return}
+  let used=false;try{used=localStorage.getItem("bcm-promo")==="1"}catch(e){}
+  const sorry=(title,html)=>{closePay();lockAsk(title,html,()=>{openPay()});$("lmOk").textContent="Buy a set · R50";$("lmCancel").textContent="Maybe later"};
+  if(used){sorry("You've had your freebie! 🎉","<p>The promo is one free set per family, and this device has already claimed one.</p><p>The good news: a set is only <b>R50</b>, and the 2nd and 3rd are R25 each.</p>");return}
+  $("promoGo").disabled=true;$("promoGo").textContent="Checking…";pwMsg("");
+  try{const r=await api("/promo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({code,email})});
+    if(r.ok&&r.body.token){try{localStorage.setItem("bcm-promo","1")}catch(e){}applyPass(r.body);try{localStorage.setItem("bcm-email",email)}catch(e){}closePay();status("Promo claimed! You've got 1 free set with 1 theme. Add your child's name and download.");
+      if(!r.body.hasPassword){acctTab="pass";openAcct();acctMsg("🎉 Promo claimed! Create a password and recovery PIN so you can sign in on any device.")}}
+    else if(r.body.status==="soldout")sorry("Aw, you just missed it! 🐦","<p>The early birds got there first: all the free sets have been claimed.</p><p>Don't worry, a set is only <b>R50</b> (and the 2nd and 3rd are just R25 each).</p>");
+    else if(r.body.status==="already"){try{localStorage.setItem("bcm-promo","1")}catch(e){}sorry("Nice try! 😄","<p>This email has already claimed its free set. It's one per family.</p><p>Grab another set for just <b>R50</b> (2nd and 3rd sets are R25).</p>")}
+    else pwMsg(r.body.error||"That promo code isn't valid.")}
+  catch(e){pwMsg("Couldn't connect. Check your internet and try again.")}
+  finally{$("promoGo").disabled=false;$("promoGo").textContent="Claim free set"}};
 // themes per set: 2; a 3rd needs another set for that learner
 function useTheme(){const L=learner(),nm=normName(state.name),tn=(THEMES[state.theme]||{}).name,used=(L.themes||[]).length,slots=themeSlots(L);
   const go=async()=>{$("pdf").disabled=true;try{const r=await api("/license",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({token:LIC.token,name:nm,theme:state.theme,action:"theme",grade:state.grade,school:state.school,year:state.year})});
@@ -707,7 +728,7 @@ function useTheme(){const L=learner(),nm=normName(state.name),tn=(THEMES[state.t
   lockAsk(`Use ${tn} for ${nm}?`,`<p>Each set includes <b>${slots===2?"2 themes":slots+" themes"}</b>. ${esc(nm)} already has <b>${(L.themes||[]).map(k=>esc((THEMES[k]||{}).name||k)).join(", ")}</b>.</p><p>${used+1===slots?`<b>${esc(tn)}</b> will be the last theme for this set. A further theme needs another set.`:`<b>${esc(tn)}</b> will be theme ${used+1} of ${slots}.`}</p>`,go)}
 function themeLimit(){const L=learner(),nm=normName(state.name);const names=(L.themes||[]).map(k=>esc((THEMES[k]||{}).name||k)).join(" and ");
   const left=LIC.kids-(LIC.names||[]).length;const how=left>0?"Use a free place on your pass (no payment)":roomOf()>0?"Add a set for R25":"Start a new pack for R50";
-  lockAsk("Another theme needs another set",`<p><b>${esc(nm)}</b> has used both themes in their set: <b>${names}</b>. You can switch back to either of those for free.</p><p>For more themes, add another set for ${esc(nm)}. It unlocks <b>2 more themes</b>.</p>`,()=>{if(left>0)claim(true);else if(roomOf()>0)openAcct(true);else newPack()});$("lmOk").textContent=how}
+  lockAsk("Another theme needs another set",`<p><b>${esc(nm)}</b> has used all the themes in their set: <b>${names}</b>. You can switch back to either of those for free.</p><p>For more themes, add another set for ${esc(nm)}. It unlocks <b>2 more themes</b>.</p>`,()=>{if(left>0)claim(true);else if(roomOf()>0)openAcct(true);else newPack()});$("lmOk").textContent=how}
 $("sqAgain").onclick=()=>{$("schForm").hidden=false;$("sqDone").hidden=true};
 // contact form (footer "Contact us", #contact links)
 function resetContact(){$("ctForm").hidden=false;$("ctDone").hidden=true;$("ctNote").textContent="We usually reply within one working day.";$("ctNote").style.color=""}
@@ -1352,14 +1373,14 @@ function packOfName(nm){return ((LIC&&LIC.packs)||[]).find(p=>p.active&&(p.names
 function showPassInfo(){const el=$("passinfo");if(!isUnlocked()){el.hidden=true;return}
   const names=(LIC.names||[]);el.hidden=false;
   const pk=packOfName(normName(state.name));
-  const Lq=(LIC.learners||{})[normName(state.name)];const thl=Lq&&(Lq.themes||[]).length?` · Themes used: ${(Lq.themes||[]).map(t=>esc((THEMES[t]||{}).name||t)).join(", ")} (${(Lq.themes||[]).length} of ${(LIC.tps||2)*Math.max(1,Lq.sets||1)})`:" · 2 themes per set";
+  const Lq=(LIC.learners||{})[normName(state.name)];const thl=Lq&&(Lq.themes||[]).length?` · Themes used: ${(Lq.themes||[]).map(t=>esc((THEMES[t]||{}).name||t)).join(", ")} (${(Lq.themes||[]).length} of ${themeSlots(Lq)})`:" · 2 themes per set";
   el.innerHTML=pk?`<b>${esc(normName(state.name))}</b> is unlocked until <b>${fmtDate(pk.exp)}</b>${thl}`:`Unlocked: <b>${LIC.kids} ${LIC.kids===1?"set":"sets"}</b>`+(names.length?` · ${names.map(esc).join(", ")}`:"");}
 function learner(){return nameOnPass()?((LIC.learners||{})[normName(state.name)]||null):null}
-function themeSlots(L){return (LIC&&LIC.tps||2)*Math.max(1,(L&&L.sets)||1)}
+function themeSlots(L){return L&&L.slots!==undefined?Math.max(1,L.slots):(LIC&&LIC.tps||2)*Math.max(1,(L&&L.sets)||1)}
 function themeState(){const L=learner();if(!L)return "na";const t=L.themes||[];if(t.includes(state.theme))return "ok";return t.length<themeSlots(L)?"free":"limit"}
 function applyLock(){const L=learner();const lock=!!L;["name","grade","school","year"].forEach(k=>{const el=$(k);el.readOnly=lock;if(lock&&L[k]!==undefined&&k!=="name"&&L.grade!==undefined){state[k]=L[k];el.value=L[k]}});$("lockNote").hidden=!lock;if(typeof renderThemes==="function")markThemes()}
 function markThemes(){const L=learner();document.querySelectorAll("#themes .theme").forEach(b=>{b.querySelector(".tbadge")&&b.querySelector(".tbadge").remove();if(!L)return;const k=b.dataset.k;const used=(L.themes||[]).includes(k);const full=(L.themes||[]).length>=themeSlots(L);if(used||full){const t=document.createElement("span");t.className="tbadge"+(used?"":" lock");t.textContent=used?"✓ Yours":"🔒";b.appendChild(t)}})}
-function lockAsk(title,html,ok){$("lmOk").textContent="Confirm";$("lmTitle").textContent=title;$("lmBody").innerHTML=html;$("lockM").hidden=false;const close=()=>{$("lockM").hidden=true};$("lmCancel").onclick=close;$("lmClose").onclick=close;$("lmOk").onclick=()=>{close();ok()}}
+function lockAsk(title,html,ok){$("lmOk").textContent="Confirm";$("lmCancel").textContent="Go back";$("lmTitle").textContent=title;$("lmBody").innerHTML=html;$("lockM").hidden=false;const close=()=>{$("lockM").hidden=true};$("lmCancel").onclick=close;$("lmClose").onclick=close;$("lmOk").onclick=()=>{close();ok()}}
 function setBtn(){const b=$("pdf");const n=pages().length;showPassInfo();applyLock();
   if(!isUnlocked()){mode="locked";b.disabled=false;b.textContent="Unlock to download · R50";return}
   if(!n){mode="none";b.disabled=true;b.textContent="Add a subject first";return}
@@ -1622,7 +1643,7 @@ function passTab(tb){const active=isUnlocked();
   packs.forEach((pk,i)=>{const box=document.createElement("div");box.className="packbox"+(pk.active?"":" off");
     const free=pk.active?pk.kids-(pk.names||[]).length:0;
     box.innerHTML=`<div class="packhead"><b>Pack ${i+1}</b><span class="${pk.active?"ok":"bad"}">${pk.active?"Active until "+fmtDate(pk.exp):"Expired "+fmtDate(pk.exp)}</span></div><div class="fine">${(pk.names||[]).length} of ${pk.kids} ${pk.kids===1?"set":"sets"} used${pk.active&&free>0?` · ${free} free`:""}</div>`;
-    (pk.names||[]).forEach(k=>{const r=document.createElement("div");r.className="kidrow";const Lr=(LIC.learners||{})[k];r.innerHTML=`<span><b>${esc(k)}</b>${Lr&&Lr.grade?` · Gr ${esc(Lr.grade)}`:''}${Lr&&(Lr.themes||[]).length?`<br><small class="fine">Themes: ${(Lr.themes||[]).map(t=>esc((THEMES[t]||{}).name||t)).join(', ')} (${(Lr.themes||[]).length} of ${(LIC.tps||2)*Math.max(1,Lr.sets||1)})</small>`:''}</span>${!pk.active?'<span class="tag" style="color:var(--warn)">Expired</span>':k===cur?'<span class="tag">Showing now</span>':''}`;
+    (pk.names||[]).forEach(k=>{const r=document.createElement("div");r.className="kidrow";const Lr=(LIC.learners||{})[k];r.innerHTML=`<span><b>${esc(k)}</b>${Lr&&Lr.grade?` · Gr ${esc(Lr.grade)}`:''}${Lr&&(Lr.themes||[]).length?`<br><small class="fine">Themes: ${(Lr.themes||[]).map(t=>esc((THEMES[t]||{}).name||t)).join(', ')} (${(Lr.themes||[]).length} of ${themeSlots(Lr)})</small>`:''}</span>${!pk.active?'<span class="tag" style="color:var(--warn)">Expired</span>':k===cur?'<span class="tag">Showing now</span>':''}`;
       if(pk.active&&k!==cur){const b=document.createElement("button");b.type="button";b.className="btn sm";b.textContent="Open";b.onclick=()=>{switchChild(k);closeAcct();location.hash="maker"};r.appendChild(b)}box.appendChild(r)});
     if(pk.active&&free>0){const r=document.createElement("div");r.className="kidrow";r.innerHTML=`<span>${free} free ${free===1?"set":"sets"} in this pack</span>`;const b=document.createElement("button");b.type="button";b.className="btn sm primary";b.textContent="+ New set";b.onclick=()=>{closeAcct();addChild();location.hash="maker"};r.appendChild(b);box.appendChild(r)}
     pb.appendChild(box)});

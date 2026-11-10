@@ -33,16 +33,18 @@ export const THEMES_PER_SET = 2;
 const cleanMeta = (m = {}) => ({ grade: String(m.grade || "").trim().toUpperCase().slice(0, 4), school: String(m.school || "").trim().slice(0, 60), year: String(m.year || "").trim().slice(0, 4) });
 // How many active sets a learner name holds (a learner can take more than one set to unlock more themes)
 export const setCount = (lic, name, now = Date.now()) => activePacks(lic, now).reduce((n, p) => n + p.names.filter(x => x === name).length, 0);
+// Theme slots a learner holds: 2 per paid set, or the pack's own limit (promo packs give 1)
+export const themeSlots = (lic, name, now = Date.now()) => activePacks(lic, now).reduce((n, p) => n + p.names.filter(x => x === name).length * (p.themes || THEMES_PER_SET), 0);
 
 export function view(lic, u, now = Date.now()) {
   const sm = summary(lic, now);
   const learners = {};
-  [...new Set(sm.names)].forEach(n => { learners[n] = { ...(lic.meta && lic.meta[n] || {}), themes: (lic.themes && lic.themes[n]) || [], sets: setCount(lic, n, now) }; });
+  [...new Set(sm.names)].forEach(n => { learners[n] = { ...(lic.meta && lic.meta[n] || {}), themes: (lic.themes && lic.themes[n]) || [], sets: setCount(lic, n, now), slots: themeSlots(lic, n, now) }; });
   return {
     status: sm.active ? "active" : "expired",
     token: makeToken({ email: lic.email, kids: sm.kids, exp: sm.exp }),
     kids: sm.kids, exp: sm.exp, names: sm.names, room: sm.room, email: lic.email,
-    packs: packsOf(lic, now).map(p => ({ id: p.id, kids: p.kids, exp: p.exp, names: p.names, active: p.active })),
+    packs: packsOf(lic, now).map(p => ({ id: p.id, kids: p.kids, exp: p.exp, names: p.names, active: p.active, promo: !!p.promo })),
     hasPassword: !!(u && u.hash), hasPin: !!(u && u.pinHash), learners, themesPerSet: THEMES_PER_SET,
   };
 }
@@ -76,7 +78,7 @@ export function useTheme(lic, name, theme, now = Date.now(), meta = null) {
   if (!lic.meta[name] && meta) lic.meta[name] = cleanMeta(meta); // older sets lock on their next download
   const t = lic.themes[name] || [];
   if (t.includes(theme)) return "ok";
-  if (t.length >= THEMES_PER_SET * n) return "limit";
+  if (t.length >= themeSlots(lic, name, now)) return "limit";
   lic.themes[name] = [...t, theme];
   return "added";
 }
