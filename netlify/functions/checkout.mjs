@@ -26,7 +26,7 @@ export default async (req) => {
     amountNum = price(kids);
   }
 
-  const site = (process.env.URL || new URL(req.url).origin).replace(/\/$/, "");
+  const site = (process.env.SITE_URL || "https://schoolbookcover.co.za").replace(/\/$/, "");
   const id = "BCM-" + crypto.randomBytes(6).toString("hex").toUpperCase();
   const amount = amountNum.toFixed(2);
   await store().setJSON("order:" + id, { id, type, kids, extra, packId, email, amount, status: "pending", created: new Date().toISOString() });

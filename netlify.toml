@@ -9,3 +9,10 @@
   for = "/jspdf.umd.min.js"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+
+# Old address forwards permanently to the main domain
+[[redirects]]
+  from = "https://schoolbookcovers.netlify.app/*"
+  to = "https://schoolbookcover.co.za/:splat"
+  status = 301
+  force = true

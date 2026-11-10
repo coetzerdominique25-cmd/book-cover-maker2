@@ -118,7 +118,7 @@ export default async (req) => {
       const hk = crypto.createHash("sha256").update(rt).digest("hex");
       await s.setJSON("reset:" + hk, { ek, exp: Date.now() + 60 * 60 * 1000 });
       await fail(s, ek); // counts towards the rate limit so the inbox can't be flooded
-      const site = (process.env.URL || new URL(req.url).origin).replace(/\/$/, "");
+      const site = (process.env.SITE_URL || "https://schoolbookcover.co.za").replace(/\/$/, "");
       const link = `${site}/?reset=${rt}`;
       try {
         await sendMail({ to: lic.email, subject: "Reset your School Book Covers password",
