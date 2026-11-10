@@ -169,7 +169,7 @@ ${imgs.length > 3 ? `<div class="covers" style="margin-bottom:12px">${imgs.slice
 <section class="card"><h2>Questions</h2>${p.faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}<p style="margin-top:12px"><a href="/#faq">More questions and answers</a></p></section>
 <section class="card"><h2>More book covers</h2><ul class="links">${related(p).map(r => `<li><a href="/covers/${r.slug}/">${esc(r.label)}</a></li>`).join("")}<li><a href="/covers/">All book covers</a></li><li><a href="/#schools">Bulk pricing for schools</a></li></ul></section>
 </main>
-<footer><div class="wrap">© ${new Date().getFullYear()} Velvik (Pty) Ltd · School Book Covers · <a href="mailto:coetzerdominique25@gmail.com">coetzerdominique25@gmail.com</a> · <a href="/#policies">Refunds and privacy</a></div></footer>
+<footer><div class="wrap">© ${new Date().getFullYear()} School Book Covers · <a href="mailto:coetzerdominique25@gmail.com">coetzerdominique25@gmail.com</a> · <a href="/#policies">Refunds and privacy</a></div></footer>
 ${SHARE_JS}
 </body></html>`;
 }
@@ -197,7 +197,7 @@ function hub() {
 <h1>Printable school book covers</h1><p class="lead">Pick a subject, grade or theme to see examples, then make your own with your child's name in minutes.</p>
 ${groups.map(g => `<section class="grp"><h2>${g === "Guides" ? "Popular searches" : "By " + g.toLowerCase().replace(/s$/, "")}</h2><div class="grid">${pages.filter(p => p.group === g).map(p => { const [s, t] = p.examples[0]; return `<a href="/covers/${p.slug}/"><img src="/img/covers/${imgName(s, t)}" width="600" height="849" loading="lazy" decoding="async" alt="${esc(p.label)} example">${esc(p.label)}</a>`; }).join("")}</div></section>`).join("")}
 </main>
-<footer><div class="wrap">© ${new Date().getFullYear()} Velvik (Pty) Ltd · School Book Covers · <a href="/">Make covers</a></div></footer>
+<footer><div class="wrap">© ${new Date().getFullYear()} School Book Covers · <a href="/">Make covers</a></div></footer>
 </body></html>`;
 }
 
